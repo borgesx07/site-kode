@@ -273,6 +273,8 @@ select.st-sel option { background: var(--panel-2); color: var(--ink); }
 .msg-texto { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
 .msg-texto mark { background: var(--roxo-soft); color: var(--roxo-claro); border-radius: 5px; padding: 0 4px; }
 .msg-pe { display: flex; gap: 8px; flex-wrap: wrap; }
+.pacotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+.itens { margin: 0; padding-left: 18px; color: var(--muted); font-size: .88rem; display: flex; flex-direction: column; gap: 5px; }
 .dicas { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; counter-reset: d; }
 .dicas li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; color: var(--muted); font-size: .9rem; counter-increment: d; }
 .dicas li::before { content: counter(d); width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--panel-3); color: var(--roxo-claro); font-family: var(--f-mono); font-size: .76rem; }
@@ -446,13 +448,15 @@ const ST_NOME = Object.fromEntries(STATUS);
 const ATIVOS = ["novo", "abordado", "respondeu", "viu_previa"];
 const NICHOS = [["comida", "Comida e delivery"], ["liberal", "Profissional liberal"], ["beleza", "Beleza e estética"], ["servicos", "Serviços locais"], ["outro", "Outro"]];
 const NICHO_NOME = Object.fromEntries(NICHOS);
-const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["site", "Site completo"], ["outro", "Outro"]];
+const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["site", "Site completo"], ["insta_essencial", "Instagram Essencial"], ["insta_completo", "Instagram Completo"], ["outro", "Outro"]];
 const PROD_NOME = Object.fromEntries(PRODUTOS);
 // Preços do Guia de Vendas (pagamento: metade na aprovação da prévia, metade na entrega)
 const PRECOS = {
   cardapio: { valor: 250, mensal: 60, prazo: "3 dias", para: "Lanchonetes, hamburguerias, pizzarias, docerias, marmitas" },
   landing_page: { valor: 700, mensal: 120, prazo: "7 dias", para: "Advogados, dentistas, psicólogos, salões, oficinas, eletricistas" },
   site: { valor: 1500, mensal: 200, prazo: "15 dias", para: "Clínicas, agências, escolas, lojas", aPartir: true },
+  insta_essencial: { valor: 350, mensal: 250, mensal2: 400, prazo: "5 dias", para: "Quem não tem Instagram ou tem perfil parado", semAnual: true },
+  insta_completo: { valor: 600, mensal: 250, mensal2: 400, prazo: "a confirmar", para: "Quem quer o feed já montado", semAnual: true },
 };
 const PRODUTO_DO_NICHO = { comida: "cardapio", liberal: "landing_page", beleza: "landing_page", servicos: "landing_page", outro: "landing_page" };
 const COMISSAO_PADRAO = 40;
@@ -850,6 +854,8 @@ const SEQUENCIA = [
   ["Depois da prévia", "quando o cliente já viu", "E aí, o que achou da prévia? Se quiser trocar cor, foto ou texto, é só falar que a gente ajusta.\n\nPra colocar no ar fica [VALOR], metade agora e metade na entrega. O primeiro mês de manutenção é por nossa conta: hospedagem, ajustes e suporte. Depois fica [MENSAL] por mês, se você quiser continuar. Pagando o ano de uma vez, fica [ANUAL] por 12 meses: são 2 meses grátis. O domínio .com.br é à parte, cerca de R$ 40 por ano."],
   ["\"Já tenho Instagram\"", "objeção mais comum", "Faz sentido! O Instagram é ótimo pra mostrar o dia a dia. Só que quando alguém pesquisa no Google, é o site que aparece. O site é onde o cliente novo te acha, e o Instagram é onde ele te acompanha. Um ajuda o outro."],
   ["Último toque", "5 a 7 dias sem resposta", "Oi! Vou deixar a prévia da {negocio} guardada aqui. Se mais pra frente fizer sentido ter o site, é só me chamar. Valeu e sucesso!"],
+  ["Instagram: primeira mensagem", "perfil parado ou sem Instagram", "Oi, tudo bem? Vi o Instagram da {negocio} e dá pra deixar ele com muito mais cara de marca: logo, cores, bio e posts no mesmo padrão.\n\nEu sou da Kode, a gente monta a identidade visual do perfil. Posso preparar uma prévia de como ficaria, sem compromisso?"],
+  ["Instagram: preços", "quando perguntarem o valor", "O pacote Essencial sai R$ 350: logo simples, cores, foto de perfil, bio, capas dos destaques e 3 posts de lançamento. O Completo sai R$ 600 e já deixa o feed montado, com mais 9 posts e um guia da identidade visual.\n\nÉ metade na aprovação da prévia e metade na entrega. Se quiser que a gente cuide do perfil depois, a manutenção é R$ 250 por mês (4 posts) ou R$ 400 por mês (8 posts, stories toda semana e relatório do mês)."],
 ];
 function preencher(t) {
   const n = S.msg.negocio.trim();
@@ -859,10 +865,24 @@ function preencher(t) {
 function valoresMsg() { const p = PRECOS[PRODUTO_DO_NICHO[S.msg.nicho]]; return [(p.aPartir ? "a partir de " : "") + reais(p.valor), reais(p.mensal), reais(p.mensal * MESES_PAGOS_NO_ANUAL)]; }
 function textoFinal(t) { const n = S.msg.negocio.trim() || "[nome do negócio]"; const [vv, vm, va] = valoresMsg(); return t.replace(/\{negocio\}/g, n).split("[VALOR]").join(vv).split("[MENSAL]").join(vm).split("[ANUAL]").join(va); }
 function tabelaPrecos() {
+  const mensalTxt = (p) => reais(p.mensal) + (p.mensal2 ? " ou " + reais(p.mensal2) : "") + "/mês";
+  const comTxt = (p) => reais(p.valor * COMISSAO_PADRAO / 100) + " + " + reais(p.mensal * COMISSAO_PADRAO / 100) + (p.mensal2 ? " ou " + reais(p.mensal2 * COMISSAO_PADRAO / 100) : "") + "/mês";
   return '<section class="painel"><div class="painel-topo"><h2>' + ic("carteira") + 'Tabela de preços</h2><span class="label">comissão de ' + COMISSAO_PADRAO + '%</span></div>'
     + '<div class="tabela-wrap"><table><thead><tr><th>Produto</th><th>Para quem</th><th class="d">Preço</th><th class="d">Prazo</th><th class="d">Manutenção</th><th class="d">Plano anual</th><th class="d">Sua comissão</th></tr></thead><tbody>'
-    + Object.entries(PRECOS).map(([k, p]) => '<tr><td><b>' + esc(PROD_NOME[k]) + '</b></td><td style="color:var(--muted)">' + esc(p.para) + '</td><td class="d num">' + (p.aPartir ? "a partir de " : "") + reais(p.valor) + '</td><td class="d num">' + p.prazo + '</td><td class="d num">' + reais(p.mensal) + '/mês</td><td class="d num">' + reais(p.mensal * MESES_PAGOS_NO_ANUAL) + '/ano</td><td class="d num">' + reais(p.valor * COMISSAO_PADRAO / 100) + ' + ' + reais(p.mensal * COMISSAO_PADRAO / 100) + '/mês</td></tr>').join("")
-    + '</tbody></table></div><p class="nota">Pagamento: metade na aprovação da prévia e metade na entrega, sempre no Pix do Gabriel. O prazo conta a partir da entrada. O domínio .com.br é à parte, cerca de R$ 40 por ano. O 1º mês de manutenção é grátis. No plano anual, o cliente paga 10 mensalidades de uma vez e leva 12 meses, e a comissão de 40% vale sobre o valor pago. Desconto, parcelamento diferente ou prazo especial só com autorização do Gabriel.</p></section>';
+    + Object.entries(PRECOS).map(([k, p]) => '<tr><td><b>' + esc(PROD_NOME[k]) + '</b></td><td style="color:var(--muted)">' + esc(p.para) + '</td><td class="d num">' + (p.aPartir ? "a partir de " : "") + reais(p.valor) + '</td><td class="d num">' + p.prazo + '</td><td class="d num" style="white-space:normal">' + mensalTxt(p) + '</td><td class="d num">' + (p.semAnual ? "não tem" : reais(p.mensal * MESES_PAGOS_NO_ANUAL) + "/ano") + '</td><td class="d num" style="white-space:normal">' + comTxt(p) + '</td></tr>').join("")
+    + '</tbody></table></div><p class="nota">Pagamento: metade na aprovação da prévia e metade na entrega, sempre no Pix do Gabriel. O prazo conta a partir da entrada. O domínio .com.br é à parte, cerca de R$ 40 por ano. O 1º mês de manutenção é grátis. No plano anual, o cliente paga 10 mensalidades de uma vez e leva 12 meses, e a comissão de 40% vale sobre o valor pago. No Instagram, a manutenção é Básica (R$ 250/mês) ou Completa (R$ 400/mês), sem plano anual. Desconto, parcelamento diferente ou prazo especial só com autorização do Gabriel.</p></section>'
+    + pacotesInstagram();
+}
+const PACOTES_INSTA = [
+  ["Essencial", "R$ 350", ["Logo simples e paleta de cores", "Foto de perfil e bio otimizada", "Capas dos destaques", "3 posts de lançamento"]],
+  ["Completo", "R$ 600", ["Tudo do Essencial", "Mais 9 posts para deixar o feed montado", "Guia rápido da identidade visual"]],
+  ["Manutenção Básica", "R$ 250/mês", ["4 posts por mês seguindo a identidade da marca", "Stories quando tiver promoção ou novidade", "Legendas e hashtags prontas"]],
+  ["Manutenção Completa", "R$ 400/mês", ["8 posts por mês seguindo a identidade da marca", "Stories semanais com promoções e novidades", "Legendas e hashtags prontas", "Atualização da bio, dos destaques e do link", "Calendário de postagens aprovado com o cliente", "Relatório simples do mês (seguidores e alcance)"]],
+];
+function pacotesInstagram() {
+  return '<section class="painel"><div class="painel-topo"><h2>' + ic("dica") + 'Instagram com identidade visual</h2><span class="label">sem Instagram ou perfil parado</span></div><div class="pacotes">'
+    + PACOTES_INSTA.map(([n, v, itens]) => '<div class="msg"><div class="msg-topo"><h3>' + esc(n) + '</h3><span class="num" style="color:var(--roxo-claro)">' + esc(v) + '</span></div><ul class="itens">' + itens.map(i => '<li>' + esc(i) + '</li>').join("") + '</ul></div>').join("")
+    + '</div></section>';
 }
 function vMensagens() {
   const blocos = [["Primeira mensagem", NICHO_NOME[S.msg.nicho], PRIMEIRA[S.msg.nicho]], ...SEQUENCIA];
