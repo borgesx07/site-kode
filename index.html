@@ -261,6 +261,7 @@ select.st-sel option { background: var(--panel-2); color: var(--ink); }
 .tag-quando svg.i { width: 13px; height: 13px; }
 .atrasado { color: var(--warn); font-weight: 600; }
 .dono { color: var(--ink); font-weight: 600; }
+.insta-op { color: var(--roxo-claro); font-weight: 600; }
 
 /* Mensagens */
 .msgs { display: flex; flex-direction: column; gap: 12px; }
@@ -334,6 +335,7 @@ td.num { white-space: nowrap; }
   <symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12l1-8Z"/></symbol>
   <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></symbol>
+  <symbol id="i-insta" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6"/></symbol>
 </svg>
 
 <!-- Entrar / criar conta -->
@@ -448,6 +450,8 @@ const ST_NOME = Object.fromEntries(STATUS);
 const ATIVOS = ["novo", "abordado", "respondeu", "viu_previa"];
 const NICHOS = [["comida", "Comida e delivery"], ["liberal", "Profissional liberal"], ["beleza", "Beleza e estética"], ["servicos", "Serviços locais"], ["outro", "Outro"]];
 const NICHO_NOME = Object.fromEntries(NICHOS);
+const INSTAGRAM = [["", "Ainda não sei"], ["nao_tem", "Não tem Instagram"], ["parado", "Tem, mas está parado"], ["ativo", "Tem e posta sempre"]];
+function limparInsta(v) { let u = String(v || "").trim(); if (u.includes("instagram.com/")) u = u.split("instagram.com/")[1]; return u.split("/")[0].split("?")[0].replace(/^@+/, "").trim(); }
 const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["site", "Site completo"], ["insta_essencial", "Instagram Essencial"], ["insta_completo", "Instagram Completo"], ["outro", "Outro"]];
 const PROD_NOME = Object.fromEntries(PRODUTOS);
 // Preços do Guia de Vendas (pagamento: metade na aprovação da prévia, metade na entrega)
@@ -716,6 +720,7 @@ function itemContato(c) {
   const meta = [
     c.nicho ? esc(NICHO_NOME[c.nicho] || c.nicho) : "",
     c.regiao ? esc(c.regiao) : "",
+    c.instagram === "nao_tem" ? '<span class="insta-op">sem Instagram</span>' : c.instagram === "parado" ? '<span class="insta-op">Instagram parado</span>' : c.instagram === "ativo" ? "Instagram ativo" : "",
     c.telefone ? `<span class="num">${esc(telBonito(c.telefone))}</span>` : "",
     `com <span class="dono">${esc(nomeVend(c.vendedor_id))}</span>`,
   ].filter(Boolean).join('<span class="sep">·</span>');
@@ -733,6 +738,7 @@ function itemContato(c) {
         : `<span class="st" data-st="${c.status}">${ST_NOME[c.status]}</span>`}
       ${zap && meu ? `<a class="btn zap peq" href="${zap}" target="_blank" rel="noopener">${ic("zap")}WhatsApp</a>` : ""}
       ${c.link_maps ? `<a class="btn peq icone" href="${esc(c.link_maps)}" target="_blank" rel="noopener" aria-label="Abrir no Google Maps" title="Google Maps">${ic("mapa")}</a>` : ""}
+      ${c.instagram_usuario ? `<a class="btn peq icone" href="https://www.instagram.com/${encodeURIComponent(c.instagram_usuario)}/" target="_blank" rel="noopener" aria-label="Abrir o Instagram @${esc(c.instagram_usuario)}" title="@${esc(c.instagram_usuario)}">${ic("insta")}</a>` : ""}
       ${meu ? `<button class="btn peq icone" type="button" data-act="editar" data-id="${c.id}" aria-label="Editar ${esc(c.negocio)}" title="Editar">${ic("editar")}</button>` : ""}
     </div>
   </div>`;
@@ -744,7 +750,7 @@ function vContatos() {
   let lista = base;
   if (f.status === "ativos") lista = lista.filter(c => ATIVOS.includes(c.status));
   else if (f.status !== "todos") lista = lista.filter(c => c.status === f.status);
-  if (q) lista = lista.filter(c => (c.negocio || "").toLowerCase().includes(q) || (c.regiao || "").toLowerCase().includes(q) || (qd.length >= 4 && digitos(c.telefone).includes(qd)));
+  if (q) lista = lista.filter(c => (c.negocio || "").toLowerCase().includes(q) || (c.regiao || "").toLowerCase().includes(q) || (c.instagram_usuario || "").toLowerCase().includes(q.replace(/^@/, "")) || (qd.length >= 4 && digitos(c.telefone).includes(qd)));
   const qtd = (k) => k === "ativos" ? base.filter(c => ATIVOS.includes(c.status)).length : k === "todos" ? base.length : base.filter(c => c.status === k).length;
   const chipsSt = [["ativos", "Em andamento"], ...STATUS, ["todos", "Todos"]];
   return `
@@ -768,7 +774,7 @@ function vContatos() {
 }
 
 function abrirContato(id) {
-  const c = id ? S.contatos.find(x => x.id === id) : { negocio: "", nicho: "comida", telefone: "", link_maps: "", regiao: "", status: "novo", proximo_followup: "", observacoes: "", vendedor_id: S.me.id };
+  const c = id ? S.contatos.find(x => x.id === id) : { negocio: "", nicho: "comida", telefone: "", link_maps: "", instagram: "", instagram_usuario: "", regiao: "", status: "novo", proximo_followup: "", observacoes: "", vendedor_id: S.me.id };
   if (!c) return;
   const vendOpts = S.vendedores.filter(v => v.ativo).map(v => [v.id, v.nome]);
   $("janela").innerHTML = `
@@ -784,6 +790,10 @@ function abrirContato(id) {
         <div class="campo"><label for="cStatus">Status</label><select id="cStatus">${opcoes(STATUS, c.status)}</select></div>
       </div>
       <div class="campo"><label for="cMaps">Link do Google Maps</label><input id="cMaps" type="url" value="${esc(c.link_maps)}" placeholder="Cole o link do Maps"></div>
+      <div class="grade2">
+        <div class="campo"><label for="cInsta">Tem Instagram?</label><select id="cInsta">${opcoes(INSTAGRAM, c.instagram || "")}</select><span class="dica">Sem Instagram ou parado: chance de vender o pacote de Instagram.</span></div>
+        <div class="campo"><label for="cInstaUser">@ do Instagram</label><input id="cInstaUser" value="${esc(c.instagram_usuario ? "@" + c.instagram_usuario : "")}" placeholder="@perfil ou link" autocapitalize="off"></div>
+      </div>
       <div class="grade2">
         <div class="campo"><label for="cFollow">Chamar de novo em</label><input id="cFollow" type="date" value="${esc(c.proximo_followup || "")}"><span class="dica">Vazio: coloco ${DIAS_FOLLOWUP} dias depois da abordagem.</span></div>
         ${ehAdmin() ? `<div class="campo"><label for="cVend">Vendedor</label><select id="cVend">${opcoes(vendOpts, c.vendedor_id)}</select></div>` : ""}
@@ -812,6 +822,8 @@ function abrirContato(id) {
       regiao: $("cRegiao").value.trim() || null,
       status: $("cStatus").value,
       link_maps: $("cMaps").value.trim() || null,
+      instagram: $("cInsta").value || null,
+      instagram_usuario: limparInsta($("cInstaUser").value) || null,
       proximo_followup: $("cFollow").value || null,
       observacoes: $("cObs").value.trim() || null,
       vendedor_id: ehAdmin() && $("cVend") ? $("cVend").value : (c.vendedor_id || S.me.id),
