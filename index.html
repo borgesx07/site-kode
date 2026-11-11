@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08080A">
+<title>Kode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2308080A'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%238B5CF6'/%3E%3C/svg%3E">
+<style>
+/* Layout: no PC, menu lateral fixo + conteúdo (máx 1080px); no celular, barra de marca em cima e abas com ícone embaixo, como app.
+   Marca Kode: preto azulado quase puro, roxo como única cor de ação, grade de pontos discreta ao fundo (código). Cores de status e de nicho separadas do roxo. */
+:root {
+  color-scheme: dark;
+  --bg: #08080A;
+  --bg-2: #0D0D11;
+  --panel: #111116;
+  --panel-2: #17171E;
+  --panel-3: #20202A;
+  --line: rgba(255, 255, 255, .07);
+  --frame: rgba(255, 255, 255, .12);
+  --ink: #F1EFF8;
+  --muted: #A3A0B3;
+  --faint: #6E6B7E;
+  --roxo: #8B5CF6;
+  --roxo-forte: #7C3AED;
+  --roxo-claro: #C4B5FD;
+  --roxo-soft: rgba(139, 92, 246, .15);
+  --roxo-glow: rgba(139, 92, 246, .35);
+  --s-novo: #A3A0B3;
+  --s-abordado: #7DB0FF;
+  --s-respondeu: #C4B5FD;
+  --s-previa: #F2C46D;
+  --s-fechou: #6EE0A4;
+  --s-perdido: #FF8A9B;
+  --n-comida: #F5A65B;
+  --n-liberal: #7DB0FF;
+  --n-beleza: #F08FC0;
+  --n-servicos: #5EDBC0;
+  --n-outro: #A3A0B3;
+  --ok: #6EE0A4;
+  --warn: #F2C46D;
+  --bad: #FF8A9B;
+  --f-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --r: 20px;
+  --lateral: 252px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background:
+    radial-gradient(60rem 40rem at 85% -20%, rgba(139, 92, 246, .14), transparent 60%),
+    radial-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px) 0 0 / 22px 22px,
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--ink);
+  font: 15px/1.5 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--roxo-claro); outline-offset: 2px; }
+::selection { background: rgba(139, 92, 246, .4); }
+a { color: var(--roxo-claro); }
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-family: var(--f-display); letter-spacing: -.025em; }
+h1 { font-size: clamp(1.7rem, 4.4vw, 2.4rem); font-weight: 700; line-height: 1.08; }
+h2 { font-size: 1.05rem; font-weight: 600; }
+h3 { font-size: .98rem; font-weight: 600; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
+.label { font-family: var(--f-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+/* Marca */
+.marca { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; }
+.marca-k { width: 36px; height: 36px; border-radius: 11px; background: linear-gradient(150deg, #A78BFA, var(--roxo-forte)); display: grid; place-items: center; flex: none; box-shadow: 0 8px 24px -6px var(--roxo-glow), inset 0 1px 0 rgba(255, 255, 255, .25); }
+.marca-k svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.marca-nome { font-family: var(--f-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -.05em; line-height: 1; }
+.marca-nome::after { content: "."; color: var(--roxo); }
+
+/* Botões e campos */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 42px; padding: 9px 18px; border-radius: 12px; border: 1px solid var(--frame); background: var(--panel-2); font-weight: 600; font-size: .9rem; cursor: pointer; white-space: nowrap; text-decoration: none; color: var(--ink); transition: background .15s, border-color .15s, transform .15s, box-shadow .15s; }
+.btn:hover { background: var(--panel-3); }
+.btn:active { transform: scale(.98); }
+.btn.roxo { background: var(--roxo); border-color: transparent; color: #fff; box-shadow: 0 10px 26px -10px var(--roxo-glow), inset 0 1px 0 rgba(255, 255, 255, .2); }
+.btn.roxo:hover { background: #9A70FA; }
+.btn.zap { background: rgba(110, 224, 164, .1); border-color: rgba(110, 224, 164, .3); color: var(--ok); }
+.btn.zap:hover { background: rgba(110, 224, 164, .18); }
+.btn.peq { min-height: 36px; padding: 6px 12px; font-size: .84rem; border-radius: 10px; }
+.btn.peq svg.i { width: 16px; height: 16px; }
+.btn.icone { width: 36px; min-height: 36px; padding: 0; border-radius: 10px; }
+.btn.fantasma { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.fantasma:hover { color: var(--ink); background: var(--panel-2); }
+.btn.largo { width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.campo { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.campo label { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.campo input, .campo select, .campo textarea {
+  width: 100%; min-width: 0; border: 1px solid var(--frame); background: var(--bg-2);
+  border-radius: 12px; padding: 11px 13px; font-size: 1rem; transition: border-color .15s, box-shadow .15s;
+}
+.campo input::placeholder, .campo textarea::placeholder { color: var(--faint); }
+.campo textarea { min-height: 84px; resize: vertical; }
+.campo select option { background: var(--panel-2); }
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--roxo); box-shadow: 0 0 0 4px rgba(139, 92, 246, .2); }
+.campo .dica { font-size: .78rem; color: var(--faint); }
+.grade2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .grade2 { grid-template-columns: 1fr; } }
+.erro { color: var(--bad); font-size: .88rem; min-height: 1.2em; margin: 0; }
+.okmsg { color: var(--ok); font-size: .88rem; margin: 0; }
+
+/* Telas de entrada */
+.entrada { min-height: 100vh; display: grid; padding-block: 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.entrada-in { width: 100%; max-width: 1040px; margin: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; align-items: center; }
+@media (min-width: 900px) { .entrada-in { grid-template-columns: minmax(0, 1.1fr) minmax(0, 420px); gap: 64px; } }
+.vitrine { display: flex; flex-direction: column; gap: 22px; }
+.vitrine h1 { font-size: clamp(2rem, 5vw, 3.3rem); font-weight: 800; letter-spacing: -.045em; line-height: 1.02; }
+.vitrine h1 em { font-style: normal; color: var(--roxo-claro); }
+.vitrine-lista { list-style: none; margin: 0; padding: 0; display: none; flex-direction: column; gap: 14px; }
+@media (min-width: 900px) { .vitrine-lista { display: flex; } }
+.vitrine-lista li { display: flex; gap: 14px; align-items: flex-start; color: var(--muted); }
+.vitrine-lista li b { color: var(--ink); display: block; font-weight: 600; }
+.vitrine-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--roxo-soft); color: var(--roxo-claro); flex: none; border: 1px solid rgba(139, 92, 246, .25); }
+.cartao { background: linear-gradient(180deg, rgba(255, 255, 255, .03), transparent 40%), var(--panel); border: 1px solid var(--frame); border-radius: 24px; padding: 26px; display: flex; flex-direction: column; gap: 18px; min-width: 0; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), 0 0 0 1px rgba(139, 92, 246, .06); }
+.cartao-topo h2 { font-size: 1.3rem; }
+.alternar { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--bg-2); border: 1px solid var(--line); }
+.alternar button { border: 0; background: transparent; border-radius: 10px; padding: 9px; font-weight: 600; color: var(--muted); cursor: pointer; transition: background .15s, color .15s; }
+.alternar button[aria-pressed="true"] { background: var(--panel-3); color: var(--ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.link-btn { background: none; border: 0; padding: 0; color: var(--roxo-claro); cursor: pointer; font-size: .88rem; text-decoration: underline; text-underline-offset: 3px; align-self: center; }
+.so-cel { display: flex; }
+@media (min-width: 900px) { .so-cel { display: none; } }
+
+/* App: menu lateral (PC) e abas embaixo (celular) */
+.app { min-height: 100vh; }
+@media (min-width: 900px) { .app { display: grid; grid-template-columns: var(--lateral) minmax(0, 1fr); } }
+.lateral { display: none; }
+@media (min-width: 900px) {
+  .lateral { display: flex; flex-direction: column; gap: 26px; position: sticky; top: 0; height: 100vh; padding: 24px 16px; border-right: 1px solid var(--line); background: rgba(8, 8, 10, .7); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+}
+.lateral .marca { padding: 0 8px; }
+.menu { display: flex; flex-direction: column; gap: 4px; }
+.menu-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: .92rem; cursor: pointer; text-align: left; transition: background .15s, color .15s; position: relative; }
+.menu-item:hover { background: var(--panel-2); color: var(--ink); }
+.menu-item[aria-current="page"] { background: var(--roxo-soft); color: var(--ink); }
+.menu-item[aria-current="page"] svg.i { color: var(--roxo-claro); }
+.menu-item .conta { margin-left: auto; font-family: var(--f-mono); font-size: .72rem; background: var(--warn); color: #1A1306; border-radius: 99px; padding: 1px 7px; font-weight: 600; }
+.eu { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+.eu-txt { min-width: 0; flex: 1; line-height: 1.25; }
+.eu-nome { font-weight: 600; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eu-papel { color: var(--muted); font-size: .76rem; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .8rem; flex: none; background: var(--roxo-soft); color: var(--roxo-claro); border: 1px solid rgba(139, 92, 246, .3); }
+
+.topo-cel { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: rgba(8, 8, 10, .85); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+@media (min-width: 900px) { .topo-cel { display: none; } }
+.abas-baixo { position: fixed; z-index: 25; left: 0; right: 0; bottom: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); background: rgba(13, 13, 17, .92); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--line); }
+@media (min-width: 900px) { .abas-baixo { display: none; } }
+.aba-b { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; color: var(--faint); font-size: .68rem; font-weight: 600; padding: 7px 2px; border-radius: 12px; cursor: pointer; position: relative; min-height: 50px; }
+.aba-b svg.i { width: 22px; height: 22px; }
+.aba-b[aria-current="page"] { color: var(--ink); }
+.aba-b[aria-current="page"] svg.i { color: var(--roxo-claro); }
+.aba-b[aria-current="page"]::before { content: ""; position: absolute; top: -7px; width: 26px; height: 3px; border-radius: 0 0 3px 3px; background: var(--roxo); }
+.aba-b .conta { position: absolute; top: 4px; left: calc(50% + 6px); min-width: 17px; height: 17px; border-radius: 99px; background: var(--warn); color: #1A1306; font-size: .64rem; font-family: var(--f-mono); display: grid; place-items: center; padding: 0 4px; }
+
+.wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding-block: 26px 110px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 900px) { .wrap { padding-block: 40px 60px; padding-left: 40px; padding-right: 40px; gap: 24px; } }
+.cabeca { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+
+/* Números */
+.blocos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 1000px) { .blocos { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.blocos.tres { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.bloco { position: relative; overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.bloco-topo { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bloco-ico { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--panel-3); color: var(--muted); flex: none; }
+.bloco-ico svg.i { width: 16px; height: 16px; }
+.bloco .valor { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: -.04em; line-height: 1.1; font-variant-numeric: tabular-nums; margin-top: 4px; overflow-wrap: anywhere; }
+.bloco .valor small { font-size: .55em; color: var(--muted); font-weight: 600; letter-spacing: 0; }
+.bloco .det { color: var(--muted); font-size: .8rem; }
+.bloco.destaque { background: radial-gradient(120% 140% at 100% 0%, #A78BFA 0%, var(--roxo) 35%, var(--roxo-forte) 100%); border-color: transparent; color: #fff; box-shadow: 0 20px 50px -20px var(--roxo-glow); grid-column: span 2; }
+@media (min-width: 1000px) { .bloco.destaque { grid-column: span 1; } }
+.bloco.destaque::after { content: ""; position: absolute; inset: 0; background: radial-gradient(rgba(255, 255, 255, .14) 1px, transparent 1px) 0 0 / 14px 14px; mask-image: linear-gradient(200deg, #000, transparent 60%); -webkit-mask-image: linear-gradient(200deg, #000, transparent 60%); pointer-events: none; }
+.bloco.destaque .label, .bloco.destaque .det, .bloco.destaque .valor small { color: rgba(255, 255, 255, .82); }
+.bloco.destaque .bloco-ico { background: rgba(255, 255, 255, .18); color: #fff; }
+.barra { height: 8px; border-radius: 99px; background: rgba(0, 0, 0, .25); overflow: hidden; margin-top: 4px; }
+.barra span { display: block; height: 100%; border-radius: 99px; background: #fff; }
+.bloco.alerta .valor { color: var(--warn); }
+.bloco.dinheiro .valor { color: var(--ok); }
+
+/* Painéis */
+.painel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.painel-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.painel-topo h2 { display: flex; align-items: center; gap: 9px; }
+.painel-topo h2 svg.i { color: var(--roxo-claro); }
+.duas { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .duas { grid-template-columns: minmax(0, 1fr); } }
+.vazio { color: var(--muted); text-align: center; padding: 28px 16px; border: 1px dashed var(--frame); border-radius: 16px; font-size: .92rem; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.vazio svg.i { width: 26px; height: 26px; color: var(--faint); }
+
+/* Status */
+.st { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: .76rem; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 13%, transparent); }
+.st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+[data-st="novo"] { --c: var(--s-novo); }
+[data-st="abordado"] { --c: var(--s-abordado); }
+[data-st="respondeu"] { --c: var(--s-respondeu); }
+[data-st="viu_previa"] { --c: var(--s-previa); }
+[data-st="fechou"] { --c: var(--s-fechou); }
+[data-st="perdido"] { --c: var(--s-perdido); }
+select.st-sel { appearance: none; -webkit-appearance: none; border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); background: color-mix(in srgb, var(--c) 11%, var(--panel)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A3A0B3' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center / 14px; color: var(--c); border-radius: 10px; padding: 7px 30px 7px 11px; font-size: .82rem; font-weight: 600; cursor: pointer; min-height: 36px; }
+select.st-sel option { background: var(--panel-2); color: var(--ink); }
+
+/* Funil */
+.funil { display: flex; flex-direction: column; gap: 10px; }
+.funil-linha { display: grid; grid-template-columns: 104px minmax(0, 1fr) 30px; gap: 12px; align-items: center; font-size: .86rem; color: var(--muted); }
+.funil-barra { height: 10px; border-radius: 99px; background: rgba(255, 255, 255, .05); overflow: hidden; }
+.funil-barra span { display: block; height: 100%; border-radius: 99px; background: var(--c); min-width: 0; }
+.funil-linha .num { text-align: right; color: var(--ink); }
+.taxa { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.taxa b { font-family: var(--f-display); font-size: 1.5rem; letter-spacing: -.03em; color: var(--ok); }
+.nota { color: var(--muted); font-size: .82rem; margin: 0; }
+
+/* Contatos */
+.filtros { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filtros.rolar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -4px; padding-inline: 4px; }
+.filtros.rolar::-webkit-scrollbar { display: none; }
+.seg { display: inline-flex; padding: 3px; gap: 3px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+.seg button { border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: .84rem; padding: 7px 13px; border-radius: 9px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--panel-3); color: var(--ink); }
+.chip { flex: none; border: 1px solid var(--line); background: var(--bg-2); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: .82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip .q { font-family: var(--f-mono); font-size: .72rem; color: var(--faint); }
+.chip[aria-pressed="true"] { background: var(--roxo-soft); color: var(--ink); border-color: rgba(139, 92, 246, .45); }
+.chip[aria-pressed="true"] .q { color: var(--roxo-claro); }
+.busca { position: relative; flex: 1 1 220px; min-width: 0; }
+.busca svg.i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--faint); width: 17px; height: 17px; }
+.busca input { width: 100%; border: 1px solid var(--frame); background: var(--bg-2); border-radius: 12px; padding: 10px 14px 10px 38px; }
+.busca input:focus { outline: none; border-color: var(--roxo); box-shadow: 0 0 0 4px rgba(139, 92, 246, .2); }
+.lista { display: flex; flex-direction: column; }
+.item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px 14px; padding: 14px 6px; border-top: 1px solid var(--line); align-items: center; border-radius: 12px; transition: background .15s; }
+.item:first-child { border-top: 0; }
+.item:hover { background: rgba(255, 255, 255, .02); }
+.inicial { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-size: .95rem; color: var(--nc); background: color-mix(in srgb, var(--nc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--nc) 28%, transparent); flex: none; }
+[data-n="comida"] { --nc: var(--n-comida); }
+[data-n="liberal"] { --nc: var(--n-liberal); }
+[data-n="beleza"] { --nc: var(--n-beleza); }
+[data-n="servicos"] { --nc: var(--n-servicos); }
+[data-n="outro"] { --nc: var(--n-outro); }
+.item-nome { font-weight: 600; overflow-wrap: anywhere; }
+.item-meta { color: var(--muted); font-size: .82rem; display: flex; flex-wrap: wrap; gap: 2px 8px; margin-top: 2px; align-items: center; }
+.item-meta .sep { color: var(--faint); }
+.item-obs { color: var(--roxo-claro); font-size: .82rem; margin-top: 5px; overflow-wrap: anywhere; display: flex; gap: 6px; align-items: flex-start; }
+.item-obs svg.i { width: 14px; height: 14px; margin-top: 3px; }
+.item-acoes { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.lista { container-type: inline-size; }
+@container (max-width: 640px) { .item { grid-template-columns: auto minmax(0, 1fr); } .item-acoes { grid-column: 1 / -1; justify-content: flex-start; padding-left: 56px; } }
+.tag-quando { display: inline-flex; align-items: center; gap: 4px; }
+.tag-quando svg.i { width: 13px; height: 13px; }
+.atrasado { color: var(--warn); font-weight: 600; }
+.dono { color: var(--ink); font-weight: 600; }
+
+/* Mensagens */
+.msgs { display: flex; flex-direction: column; gap: 12px; }
+.msg { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); }
+.msg.principal { border-color: rgba(139, 92, 246, .4); background: linear-gradient(180deg, rgba(139, 92, 246, .08), transparent 60%), var(--bg-2); }
+.msg-topo { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.msg-topo h3 { display: flex; align-items: center; gap: 8px; }
+.passo { font-family: var(--f-mono); font-size: .7rem; color: var(--roxo-claro); background: var(--roxo-soft); border-radius: 6px; padding: 2px 7px; }
+.msg-quando { color: var(--muted); font-size: .8rem; }
+.msg-texto { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+.msg-texto mark { background: var(--roxo-soft); color: var(--roxo-claro); border-radius: 5px; padding: 0 4px; }
+.msg-pe { display: flex; gap: 8px; flex-wrap: wrap; }
+.dicas { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; counter-reset: d; }
+.dicas li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; color: var(--muted); font-size: .9rem; counter-increment: d; }
+.dicas li::before { content: counter(d); width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--panel-3); color: var(--roxo-claro); font-family: var(--f-mono); font-size: .76rem; }
+.dicas b { color: var(--ink); display: block; }
+
+/* Tabelas */
+.tabela-wrap { overflow-x: auto; margin-inline: -4px; }
+table { width: 100%; border-collapse: collapse; min-width: 580px; font-size: .9rem; }
+th, td { text-align: left; padding: 12px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
+thead th { border-top: 0; font-family: var(--f-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding-top: 0; }
+td.d, th.d { text-align: right; }
+.pago { color: var(--ok); font-weight: 600; }
+.apagar { color: var(--warn); font-weight: 600; }
+.pessoa { display: flex; align-items: center; gap: 10px; }
+.pessoa .avatar { width: 30px; height: 30px; font-size: .72rem; }
+
+/* Janela */
+.fundo { position: fixed; inset: 0; z-index: 40; background: rgba(4, 4, 6, .7); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; }
+@media (min-width: 640px) { .fundo { align-items: center; padding: 16px; } }
+.janela { width: 100%; max-width: 580px; max-height: 92vh; overflow: auto; background: var(--panel); border: 1px solid var(--frame); border-radius: 24px 24px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, .8); }
+@media (min-width: 640px) { .janela { border-radius: 24px; } }
+.janela-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.janela-pe { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
+
+.aviso { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 14px; font-weight: 600; font-size: .9rem; max-width: calc(100% - 32px); text-align: center; box-shadow: 0 14px 40px rgba(0, 0, 0, .5); }
+@media (min-width: 900px) { .aviso { bottom: 28px; left: calc(50% + var(--lateral) / 2); } }
+.carregando { color: var(--muted); text-align: center; padding: 80px 16px; }
+@media (prefers-reduced-motion: no-preference) {
+  .wrap.entra > * { animation: sobe .35s ease both; }
+  .wrap.entra > *:nth-child(2) { animation-delay: .04s; } .wrap.entra > *:nth-child(3) { animation-delay: .08s; } .wrap.entra > *:nth-child(4) { animation-delay: .12s; }
+  @keyframes sobe { from { opacity: .001; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></symbol>
+  <symbol id="i-contatos" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12Z"/><path d="M8.5 11h7M8.5 14h4"/></symbol>
+  <symbol id="i-carteira" viewBox="0 0 24 24"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v4"/><rect x="3.5" y="8" width="17" height="11" rx="2.5"/><circle cx="16" cy="13.5" r="1.3"/></symbol>
+  <symbol id="i-equipe" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8 7.5 9.5 4.4-1.5 7.5-4.9 7.5-9.5V6L12 3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-sair" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12Z"/><path d="M9.5 8.5c0 3 2.5 6 6 6l1-1.5-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2-1.4 1Z"/></symbol>
+  <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-editar" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="i-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-funil" viewBox="0 0 24 24"><path d="M3.5 5h17l-6.5 8v5.5l-4 2V13L3.5 5Z"/></symbol>
+  <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-nota" viewBox="0 0 24 24"><path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/></symbol>
+  <symbol id="i-raio" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12l1-8Z"/></symbol>
+  <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></symbol>
+</svg>
+
+<!-- Entrar / criar conta -->
+<section class="entrada" id="telaEntrada" hidden>
+  <div class="entrada-in">
+    <div class="vitrine">
+      <span class="marca"><span class="marca-nome">Kode</span></span>
+      <h1>Cada contato <em>no lugar certo</em>. Cada venda contada.</h1>
+      <p class="sub">O painel do time de vendas da Kode: quem você abordou, quando chamar de novo e quanto você tem pra receber.</p>
+      <ul class="vitrine-lista">
+        <li><span class="vitrine-ico"><svg class="i"><use href="#i-contatos"/></svg></span><span><b>Ninguém aborda o mesmo cliente duas vezes</b>O telefone já cadastrado avisa quem pegou primeiro.</span></li>
+        <li><span class="vitrine-ico"><svg class="i"><use href="#i-relogio"/></svg></span><span><b>Lembrete de follow-up</b>O painel mostra quem chamar de novo hoje.</span></li>
+        <li><span class="vitrine-ico"><svg class="i"><use href="#i-carteira"/></svg></span><span><b>Comissão de 40% calculada sozinha</b>Na venda e em cada mensalidade de manutenção.</span></li>
+      </ul>
+    </div>
+    <div class="cartao">
+      <div class="alternar" role="group" aria-label="Entrar ou criar conta">
+        <button type="button" id="modoEntrar" aria-pressed="true">Entrar</button>
+        <button type="button" id="modoCriar" aria-pressed="false">Criar conta</button>
+      </div>
+      <form id="formEntrada" novalidate style="display:flex;flex-direction:column;gap:16px">
+        <div class="campo" id="campoNome" hidden>
+          <label for="eNome">Seu nome</label>
+          <input id="eNome" autocomplete="name" placeholder="Ex.: Júlio">
+        </div>
+        <div class="campo">
+          <label for="eEmail">E-mail</label>
+          <input id="eEmail" type="email" autocomplete="email" inputmode="email" placeholder="voce@gmail.com" required>
+        </div>
+        <div class="campo">
+          <label for="eSenha">Senha</label>
+          <input id="eSenha" type="password" autocomplete="current-password" minlength="6" required>
+          <span class="dica" id="dicaSenha" hidden>No mínimo 6 caracteres.</span>
+        </div>
+        <p class="erro" id="erroEntrada" role="alert"></p>
+        <button class="btn roxo largo" type="submit" id="btnEntrada">Entrar</button>
+        <button class="link-btn" type="button" id="btnEsqueci">Esqueci minha senha</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Nova senha -->
+<section class="entrada" id="telaSenha" hidden>
+  <div class="entrada-in" style="max-width:420px">
+    <span class="marca"><span class="marca-nome">Kode</span></span>
+    <form class="cartao" id="formSenha" novalidate>
+      <div class="cartao-topo"><h2>Criar nova senha</h2></div>
+      <div class="campo">
+        <label for="novaSenha">Nova senha</label>
+        <input id="novaSenha" type="password" autocomplete="new-password" minlength="6" required>
+      </div>
+      <p class="erro" id="erroSenha" role="alert"></p>
+      <button class="btn roxo largo" type="submit">Salvar senha</button>
+    </form>
+  </div>
+</section>
+
+<!-- Esperando aprovação -->
+<section class="entrada" id="telaEspera" hidden>
+  <div class="entrada-in" style="max-width:420px">
+    <span class="marca"><span class="marca-nome">Kode</span></span>
+    <div class="cartao">
+      <div class="cartao-topo"><h2 id="esperaTitulo">Conta criada</h2></div>
+      <p class="sub" id="esperaTexto" style="margin:0">Agora o Gabriel precisa liberar seu acesso. Avisa ele e depois toca em "Verificar de novo".</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn roxo" type="button" id="btnVerificar">Verificar de novo</button>
+        <button class="btn" type="button" data-act="sair">Sair</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- App -->
+<div class="app" id="telaApp" hidden>
+  <aside class="lateral" aria-label="Menu">
+    <span class="marca"><span class="marca-nome">Kode</span></span>
+    <nav class="menu" id="menuLateral"></nav>
+    <div class="eu">
+      <span class="avatar" id="euAvatar" aria-hidden="true"></span>
+      <div class="eu-txt"><div class="eu-nome" id="euNome"></div><div class="eu-papel" id="euPapel"></div></div>
+      <button class="btn fantasma icone" type="button" data-act="sair" aria-label="Sair"><svg class="i"><use href="#i-sair"/></svg></button>
+    </div>
+  </aside>
+  <div style="min-width:0">
+    <header class="topo-cel">
+      <span class="marca"><span class="marca-nome">Kode</span></span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="avatar" id="celAvatar" aria-hidden="true"></span>
+        <button class="btn fantasma icone" type="button" data-act="sair" aria-label="Sair"><svg class="i"><use href="#i-sair"/></svg></button>
+      </div>
+    </header>
+    <main class="wrap" id="view"><p class="carregando">Carregando…</p></main>
+  </div>
+  <nav class="abas-baixo" id="menuBaixo" aria-label="Seções"></nav>
+</div>
+
+<div class="fundo" id="fundo" hidden>
+  <div class="janela" id="janela" role="dialog" aria-modal="true" aria-labelledby="janelaTitulo"></div>
+</div>
+<div class="aviso" id="aviso" role="status" hidden></div>
+
+<script>
+/* ===== Configuração ===== */
+const SB_URL = "https://fbzylnfstpawfuoehxug.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZienlsbmZzdHBhd2Z1b2VoeHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4OTA5NjIsImV4cCI6MjEwNzQ2Njk2Mn0.fDHs8hW6pRWximDqBOKc_8XRRRnsmUXHCJcagCwAXIk";
+const META_DIARIA = 20;          // abordagens por dia, por pessoa
+const DIAS_FOLLOWUP = 2;         // dias até o próximo contato
+
+const STATUS = [["novo", "Novo"], ["abordado", "Abordado"], ["respondeu", "Respondeu"], ["viu_previa", "Viu a prévia"], ["fechou", "Fechou"], ["perdido", "Perdido"]];
+const ST_NOME = Object.fromEntries(STATUS);
+const ATIVOS = ["novo", "abordado", "respondeu", "viu_previa"];
+const NICHOS = [["comida", "Comida e delivery"], ["liberal", "Profissional liberal"], ["beleza", "Beleza e estética"], ["servicos", "Serviços locais"], ["outro", "Outro"]];
+const NICHO_NOME = Object.fromEntries(NICHOS);
+const PRODUTOS = [["site", "Site"], ["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["outro", "Outro"]];
+const PROD_NOME = Object.fromEntries(PRODUTOS);
+
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+const S = {
+  user: null, me: null,
+  vendedores: [], contatos: [], vendas: [], pagamentos: [],
+  view: "inicio",
+  f: { dono: "meus", status: "ativos", busca: "" },
+  msg: { negocio: "", nicho: "comida" },
+  modoCriar: false,
+};
+
+/* ===== Utilidades ===== */
+const $ = (id) => document.getElementById(id);
+const ic = (n) => `<svg class="i" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function diaLocal(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function hoje() { return diaLocal(new Date()); }
+function maisDias(n) { const d = new Date(); d.setDate(d.getDate() + n); return diaLocal(d); }
+function diaDe(ts) { return ts ? diaLocal(new Date(ts)) : ""; }
+function dataBR(s) { if (!s) return ""; const [y, m, d] = s.slice(0, 10).split("-"); return d + "/" + m + "/" + y.slice(2); }
+const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+function brl(n) { return moeda.format(Math.round((+n || 0) * 100) / 100); }
+function digitos(s) { return String(s || "").replace(/\D/g, ""); }
+function telBonito(t) {
+  const d = digitos(t).replace(/^55(?=\d{10,11}$)/, "");
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return t || "";
+}
+function linkZap(t, texto) {
+  let d = digitos(t); if (!d) return "";
+  if (d.length <= 11) d = "55" + d;
+  return "https://wa.me/" + d + (texto ? "?text=" + encodeURIComponent(texto) : "");
+}
+function iniciais(n) { return String(n || "?").trim().split(/\s+/).slice(0, 2).map(p => p[0]).join("").toUpperCase(); }
+function primeiroNome(n) { return String(n || "").trim().split(/\s+/)[0] || ""; }
+function aviso(t) { const a = $("aviso"); a.textContent = t; a.hidden = false; clearTimeout(aviso.t); aviso.t = setTimeout(() => a.hidden = true, 3200); }
+function ehAdmin() { return S.me && S.me.papel === "admin"; }
+function nomeVend(id) { const v = S.vendedores.find(x => x.id === id); return v ? primeiroNome(v.nome) : "Sem dono"; }
+function pctDe(id) { const v = S.vendedores.find(x => x.id === id); return v ? (+v.comissao_pct || 0) : 40; }
+function opcoes(lista, atual) { return lista.map(([v, n]) => `<option value="${esc(v)}"${v === atual ? " selected" : ""}>${esc(n)}</option>`).join(""); }
+function msgErro(e) {
+  const m = (e && (e.message || e.error_description)) || "";
+  if (/Invalid login credentials/i.test(m)) return "E-mail ou senha errados.";
+  if (/Email not confirmed/i.test(m)) return "Confirme seu e-mail antes de entrar. O link chegou na sua caixa de entrada.";
+  if (/validate email|invalid format/i.test(m)) return "Esse e-mail parece estar errado. Confira se não sobrou um ponto ou espaço no final.";
+  if (/already registered/i.test(m)) return "Esse e-mail já tem conta. Use a opção Entrar.";
+  if (/Password should be at least/i.test(m)) return "A senha precisa ter pelo menos 6 caracteres.";
+  if (/rate limit/i.test(m)) return "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.";
+  if (e && e.code === "23505") return "Esse telefone já está cadastrado por alguém do time.";
+  if (e && e.code === "42501") return "Você não tem permissão para fazer isso.";
+  if (/Failed to fetch|NetworkError/i.test(m)) return "Sem conexão. Confira sua internet e tente de novo.";
+  return m || "Algo deu errado. Tente de novo.";
+}
+function entrar() { const v = $("view"); v.classList.add("entra"); clearTimeout(entrar.t); entrar.t = setTimeout(() => v.classList.remove("entra"), 600); }
+function mostrarTela(id) { ["telaEntrada", "telaSenha", "telaEspera", "telaApp"].forEach(t => $(t).hidden = t !== id); }
+
+/* ===== Entrada ===== */
+function setModo(criar) {
+  S.modoCriar = criar;
+  $("modoEntrar").setAttribute("aria-pressed", String(!criar));
+  $("modoCriar").setAttribute("aria-pressed", String(criar));
+  $("campoNome").hidden = !criar;
+  $("dicaSenha").hidden = !criar;
+  $("btnEsqueci").hidden = criar;
+  $("eSenha").autocomplete = criar ? "new-password" : "current-password";
+  $("btnEntrada").textContent = criar ? "Criar conta" : "Entrar";
+  $("erroEntrada").textContent = "";
+}
+$("modoEntrar").onclick = () => setModo(false);
+$("modoCriar").onclick = () => setModo(true);
+
+$("formEntrada").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const email = $("eEmail").value.trim().replace(/\s+/g, "").replace(/[.,;]+$/, "").toLowerCase(), senha = $("eSenha").value, nome = $("eNome").value.trim();
+  $("eEmail").value = email;
+  const erro = $("erroEntrada"); erro.textContent = ""; erro.className = "erro";
+  if (!email || !senha) { erro.textContent = "Preencha e-mail e senha."; return; }
+  if (S.modoCriar && !nome) { erro.textContent = "Coloque seu nome."; return; }
+  const btn = $("btnEntrada"); btn.disabled = true;
+  try {
+    if (S.modoCriar) {
+      const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome }, emailRedirectTo: location.origin + location.pathname } });
+      if (error) throw error;
+      if (!data.session) {
+        setModo(false);
+        erro.className = "okmsg";
+        erro.textContent = "Conta criada! Abra o e-mail que mandamos e toque no link para confirmar. Depois volte aqui e entre.";
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+      if (error) throw error;
+    }
+  } catch (e) { erro.className = "erro"; erro.textContent = msgErro(e); }
+  finally { btn.disabled = false; }
+});
+
+$("btnEsqueci").onclick = async () => {
+  const email = $("eEmail").value.trim().replace(/[.,;]+$/, ""), erro = $("erroEntrada");
+  if (!email) { erro.className = "erro"; erro.textContent = "Escreva seu e-mail acima e toque de novo em \"Esqueci minha senha\"."; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  if (error) { erro.className = "erro"; erro.textContent = msgErro(error); return; }
+  erro.className = "okmsg"; erro.textContent = "Mandamos um link para criar uma nova senha no seu e-mail.";
+};
+
+$("formSenha").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const senha = $("novaSenha").value;
+  if (senha.length < 6) { $("erroSenha").textContent = "A senha precisa ter pelo menos 6 caracteres."; return; }
+  const { error } = await sb.auth.updateUser({ password: senha });
+  if (error) { $("erroSenha").textContent = msgErro(error); return; }
+  aviso("Senha atualizada");
+  history.replaceState(null, "", location.pathname);
+  carregar();
+});
+
+$("btnVerificar").onclick = () => carregar();
+
+/* ===== Dados ===== */
+async function carregar() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { mostrarTela("telaEntrada"); return; }
+  S.user = session.user;
+  const { data: me, error } = await sb.from("vendedores").select("*").eq("id", S.user.id).maybeSingle();
+  if (error) { mostrarTela("telaEspera"); $("esperaTitulo").textContent = "Não consegui carregar sua conta"; $("esperaTexto").textContent = msgErro(error); return; }
+  if (!me) { mostrarTela("telaEspera"); $("esperaTitulo").textContent = "Conta sem cadastro"; $("esperaTexto").textContent = "Sua conta existe, mas não está no time ainda. Fale com o Gabriel."; return; }
+  S.me = me;
+  if (!me.ativo) { mostrarTela("telaEspera"); $("esperaTitulo").textContent = "Esperando liberação"; $("esperaTexto").textContent = "Sua conta foi criada. Agora o Gabriel precisa liberar seu acesso. Avisa ele e depois toca em \"Verificar de novo\"."; return; }
+  mostrarTela("telaApp");
+  $("euAvatar").textContent = $("celAvatar").textContent = iniciais(me.nome);
+  $("euNome").textContent = me.nome;
+  $("euPapel").textContent = me.papel === "admin" ? "Administrador" : `Vendedor · ${+me.comissao_pct}%`;
+  await recarregar();
+  const h = location.hash.replace("#", "");
+  if (abasVisiveis().some(a => a[0] === h)) S.view = h;
+  entrar(); render();
+}
+async function recarregar() {
+  const [v, c, vd, p] = await Promise.all([
+    sb.from("vendedores").select("*").order("nome"),
+    sb.from("contatos").select("*").order("atualizado_em", { ascending: false }),
+    sb.from("vendas").select("*").order("data_venda", { ascending: false }),
+    sb.from("pagamentos").select("*").order("pago_em", { ascending: false }),
+  ]);
+  const erro = [v, c, vd, p].find(r => r.error);
+  if (erro) aviso(msgErro(erro.error));
+  S.vendedores = v.data || []; S.contatos = c.data || []; S.vendas = vd.data || []; S.pagamentos = p.data || [];
+}
+
+sb.auth.onAuthStateChange((evento) => {
+  if (evento === "PASSWORD_RECOVERY") { mostrarTela("telaSenha"); return; }
+  if (evento === "SIGNED_IN") { if (!S.me) carregar(); }
+  if (evento === "SIGNED_OUT") { S.me = null; S.user = null; mostrarTela("telaEntrada"); }
+});
+
+/* ===== Regras ===== */
+function meus() { return S.contatos.filter(c => c.vendedor_id === S.me.id); }
+function abordagensEm(lista, dia) { return lista.filter(c => diaDe(c.abordado_em) === dia).length; }
+function pendentes(lista) { const h = hoje(); return lista.filter(c => ATIVOS.includes(c.status) && c.proximo_followup && c.proximo_followup <= h); }
+function comissaoDe(pag) { const v = S.vendas.find(x => x.id === pag.venda_id); return v ? pag.valor * pctDe(v.vendedor_id) / 100 : 0; }
+function totaisComissao(vendedorId) {
+  let gerada = 0, paga = 0;
+  S.pagamentos.forEach(p => {
+    const v = S.vendas.find(x => x.id === p.venda_id);
+    if (!v || (vendedorId && v.vendedor_id !== vendedorId)) return;
+    const c = comissaoDe(p); gerada += c; if (p.comissao_paga) paga += c;
+  });
+  return { gerada, paga, apagar: gerada - paga };
+}
+
+/* ===== Navegação ===== */
+function abasVisiveis() {
+  const a = [["inicio", "Início", "inicio"], ["contatos", "Contatos", "contatos"], ["mensagens", "Mensagens", "msg"], ["comissoes", "Comissões", "carteira"]];
+  if (ehAdmin()) a.push(["equipe", "Equipe", "equipe"]);
+  return a;
+}
+function render() {
+  const pend = pendentes(meus()).length;
+  const espera = ehAdmin() ? S.vendedores.filter(v => !v.ativo).length : 0;
+  const conta = (k) => k === "inicio" && pend ? pend : (k === "equipe" && espera ? espera : 0);
+  $("menuLateral").innerHTML = abasVisiveis().map(([k, n, i]) => `<button class="menu-item" type="button" data-act="aba" data-v="${k}"${S.view === k ? ' aria-current="page"' : ""}>${ic(i)}${n}${conta(k) ? `<span class="conta">${conta(k)}</span>` : ""}</button>`).join("");
+  $("menuBaixo").innerHTML = abasVisiveis().map(([k, n, i]) => `<button class="aba-b" type="button" data-act="aba" data-v="${k}"${S.view === k ? ' aria-current="page"' : ""}>${ic(i)}<span>${n}</span>${conta(k) ? `<span class="conta">${conta(k)}</span>` : ""}</button>`).join("");
+  const v = { inicio: vInicio, contatos: vContatos, mensagens: vMensagens, comissoes: vComissoes, equipe: vEquipe }[S.view] || vInicio;
+  $("view").innerHTML = v();
+}
+window.addEventListener("hashchange", () => { const h = location.hash.replace("#", ""); if (S.me && abasVisiveis().some(a => a[0] === h)) { S.view = h; render(); } });
+
+/* ===== Início ===== */
+function vInicio() {
+  const base = ehAdmin() ? S.contatos : meus();
+  const hj = abordagensEm(meus(), hoje());
+  const pend = pendentes(meus()).sort((a, b) => a.proximo_followup.localeCompare(b.proximo_followup));
+  const fechados = base.filter(c => c.status === "fechou").length;
+  const abordados = base.filter(c => c.status !== "novo").length;
+  const com = totaisComissao(ehAdmin() ? null : S.me.id);
+  const pctMeta = Math.min(100, Math.round(hj / META_DIARIA * 100));
+  const max = Math.max(1, ...STATUS.map(([s]) => base.filter(c => c.status === s).length));
+  const taxa = abordados ? Math.round(fechados / abordados * 100) : 0;
+  return `
+  <div class="cabeca">
+    <div>
+      <span class="label">${new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</span>
+      <h1 style="margin-top:6px">Fala, ${esc(primeiroNome(S.me.nome))}</h1>
+    </div>
+    <button class="btn roxo" type="button" data-act="novo">${ic("mais")}Novo contato</button>
+  </div>
+  <div class="blocos">
+    <div class="bloco destaque">
+      <div class="bloco-topo"><span class="label">Abordagens hoje</span><span class="bloco-ico">${ic("alvo")}</span></div>
+      <span class="valor">${hj}<small> / ${META_DIARIA}</small></span>
+      <div class="barra" role="progressbar" aria-valuenow="${hj}" aria-valuemin="0" aria-valuemax="${META_DIARIA}" aria-label="Meta do dia"><span style="width:${pctMeta}%"></span></div>
+      <span class="det">${hj >= META_DIARIA ? "Meta do dia batida" : `Faltam ${META_DIARIA - hj} para a meta`}</span>
+    </div>
+    <div class="bloco ${pend.length ? "alerta" : ""}">
+      <div class="bloco-topo"><span class="label">Chamar hoje</span><span class="bloco-ico">${ic("relogio")}</span></div>
+      <span class="valor">${pend.length}</span>
+      <span class="det">follow-ups vencidos ou de hoje</span>
+    </div>
+    <div class="bloco">
+      <div class="bloco-topo"><span class="label">${ehAdmin() ? "Vendas do time" : "Suas vendas"}</span><span class="bloco-ico">${ic("check")}</span></div>
+      <span class="valor">${fechados}</span>
+      <span class="det">contatos que fecharam</span>
+    </div>
+    <div class="bloco dinheiro">
+      <div class="bloco-topo"><span class="label">${ehAdmin() ? "Comissão a pagar" : "A receber"}</span><span class="bloco-ico">${ic("carteira")}</span></div>
+      <span class="valor">${brl(com.apagar)}</span>
+      <span class="det">${brl(com.paga)} já ${ehAdmin() ? "pagos" : "recebidos"}</span>
+    </div>
+  </div>
+  <div class="duas">
+    <section class="painel">
+      <div class="painel-topo"><h2>${ic("relogio")}Para chamar hoje</h2><span class="label">${pend.length} contato${pend.length === 1 ? "" : "s"}</span></div>
+      ${pend.length ? `<div class="lista">${pend.slice(0, 12).map(itemContato).join("")}</div>`
+        : `<div class="vazio">${ic("raio")}<span>Nenhum follow-up pra hoje. Bom momento pra abordar contatos novos do Google Maps.</span><button class="btn peq" type="button" data-act="novo">${ic("mais")}Cadastrar contato</button></div>`}
+    </section>
+    <section class="painel">
+      <div class="painel-topo"><h2>${ic("funil")}${ehAdmin() ? "Funil do time" : "Seu funil"}</h2><span class="label">${base.length} contatos</span></div>
+      ${base.length ? `<div class="funil">${STATUS.map(([s, n]) => { const q = base.filter(c => c.status === s).length; return `<div class="funil-linha" data-st="${s}"><span>${n}</span><span class="funil-barra"><span style="width:${q / max * 100}%"></span></span><span class="num">${q}</span></div>`; }).join("")}</div>
+        <div class="taxa"><span class="nota">De cada 100 abordados, fecharam</span><b>${taxa}%</b></div>`
+        : `<div class="vazio">${ic("funil")}<span>Cadastre o primeiro contato para ver o funil.</span></div>`}
+      <p class="nota">Muita gente parada em "Abordado": melhore a primeira mensagem. Parada em "Viu a prévia": o problema costuma ser preço ou confiança.</p>
+    </section>
+  </div>`;
+}
+
+/* ===== Contatos ===== */
+function itemContato(c) {
+  const meu = c.vendedor_id === S.me.id || ehAdmin();
+  const atrasado = ATIVOS.includes(c.status) && c.proximo_followup && c.proximo_followup <= hoje();
+  const zap = linkZap(c.telefone);
+  const meta = [
+    c.nicho ? esc(NICHO_NOME[c.nicho] || c.nicho) : "",
+    c.regiao ? esc(c.regiao) : "",
+    c.telefone ? `<span class="num">${esc(telBonito(c.telefone))}</span>` : "",
+    `com <span class="dono">${esc(nomeVend(c.vendedor_id))}</span>`,
+  ].filter(Boolean).join('<span class="sep">·</span>');
+  return `<div class="item">
+    <span class="inicial" data-n="${esc(c.nicho || "outro")}" aria-hidden="true">${esc(iniciais(c.negocio))}</span>
+    <div style="min-width:0">
+      <div class="item-nome">${esc(c.negocio)}</div>
+      <div class="item-meta">${meta}
+        ${c.proximo_followup && ATIVOS.includes(c.status) ? `<span class="sep">·</span><span class="tag-quando ${atrasado ? "atrasado" : ""}">${ic("relogio")}${c.proximo_followup === hoje() ? "chamar hoje" : (atrasado ? "atrasado desde " : "chamar ") + dataBR(c.proximo_followup)}</span>` : ""}
+      </div>
+      ${c.observacoes ? `<div class="item-obs">${ic("nota")}<span>${esc(c.observacoes)}</span></div>` : ""}
+    </div>
+    <div class="item-acoes">
+      ${meu ? `<select class="st-sel" data-st="${c.status}" data-act="status" data-id="${c.id}" aria-label="Status de ${esc(c.negocio)}">${opcoes(STATUS, c.status)}</select>`
+        : `<span class="st" data-st="${c.status}">${ST_NOME[c.status]}</span>`}
+      ${zap && meu ? `<a class="btn zap peq" href="${zap}" target="_blank" rel="noopener">${ic("zap")}WhatsApp</a>` : ""}
+      ${c.link_maps ? `<a class="btn peq icone" href="${esc(c.link_maps)}" target="_blank" rel="noopener" aria-label="Abrir no Google Maps" title="Google Maps">${ic("mapa")}</a>` : ""}
+      ${meu ? `<button class="btn peq icone" type="button" data-act="editar" data-id="${c.id}" aria-label="Editar ${esc(c.negocio)}" title="Editar">${ic("editar")}</button>` : ""}
+    </div>
+  </div>`;
+}
+function vContatos() {
+  const f = S.f, q = f.busca.trim().toLowerCase(), qd = digitos(q);
+  let base = S.contatos;
+  if (f.dono === "meus") base = base.filter(c => c.vendedor_id === S.me.id);
+  let lista = base;
+  if (f.status === "ativos") lista = lista.filter(c => ATIVOS.includes(c.status));
+  else if (f.status !== "todos") lista = lista.filter(c => c.status === f.status);
+  if (q) lista = lista.filter(c => (c.negocio || "").toLowerCase().includes(q) || (c.regiao || "").toLowerCase().includes(q) || (qd.length >= 4 && digitos(c.telefone).includes(qd)));
+  const qtd = (k) => k === "ativos" ? base.filter(c => ATIVOS.includes(c.status)).length : k === "todos" ? base.length : base.filter(c => c.status === k).length;
+  const chipsSt = [["ativos", "Em andamento"], ...STATUS, ["todos", "Todos"]];
+  return `
+  <div class="cabeca">
+    <div><h1>Contatos</h1><p class="sub">Antes de abordar, pesquise o nome ou o telefone aqui. Se alguém do time já pegou, deixa com ele.</p></div>
+    <button class="btn roxo" type="button" data-act="novo">${ic("mais")}Novo contato</button>
+  </div>
+  <section class="painel">
+    <div class="filtros">
+      <div class="seg" role="group" aria-label="De quem">
+        <button type="button" data-act="dono" data-v="meus" aria-pressed="${f.dono === "meus"}">Meus</button>
+        <button type="button" data-act="dono" data-v="todos" aria-pressed="${f.dono === "todos"}">Time todo</button>
+      </div>
+      <label class="busca">${ic("busca")}<input id="busca" type="search" placeholder="Buscar por nome, região ou telefone" value="${esc(f.busca)}" aria-label="Buscar contatos"></label>
+    </div>
+    <div class="filtros rolar">${chipsSt.map(([k, n]) => `<button class="chip" type="button" data-act="fst" data-v="${k}" aria-pressed="${f.status === k}">${n}<span class="q">${qtd(k)}</span></button>`).join("")}</div>
+    <div class="lista" id="listaContatos">
+      ${lista.length ? lista.map(itemContato).join("") : `<div class="vazio">${ic(q ? "busca" : "contatos")}<span>${q ? "Ninguém do time cadastrou esse contato ainda. Pode pegar." : "Nenhum contato aqui. Cadastre um negócio que você achou no Google Maps."}</span>${q ? "" : `<button class="btn peq" type="button" data-act="novo">${ic("mais")}Novo contato</button>`}</div>`}
+    </div>
+  </section>`;
+}
+
+function abrirContato(id) {
+  const c = id ? S.contatos.find(x => x.id === id) : { negocio: "", nicho: "comida", telefone: "", link_maps: "", regiao: "", status: "novo", proximo_followup: "", observacoes: "", vendedor_id: S.me.id };
+  if (!c) return;
+  const vendOpts = S.vendedores.filter(v => v.ativo).map(v => [v.id, v.nome]);
+  $("janela").innerHTML = `
+    <div class="janela-topo"><h2 id="janelaTitulo">${id ? "Editar contato" : "Novo contato"}</h2><button class="btn fantasma icone" type="button" data-act="fechar" aria-label="Fechar">${ic("fechar")}</button></div>
+    <form id="formContato" novalidate style="display:flex;flex-direction:column;gap:14px">
+      <div class="campo"><label for="cNegocio">Nome do negócio</label><input id="cNegocio" value="${esc(c.negocio)}" required placeholder="Ex.: Hamburgueria do Zé"></div>
+      <div class="grade2">
+        <div class="campo"><label for="cTel">WhatsApp</label><input id="cTel" inputmode="tel" value="${esc(telBonito(c.telefone))}" placeholder="(61) 99999-9999"><span class="dica" id="dupTel"></span></div>
+        <div class="campo"><label for="cNicho">Nicho</label><select id="cNicho">${opcoes(NICHOS, c.nicho || "outro")}</select></div>
+      </div>
+      <div class="grade2">
+        <div class="campo"><label for="cRegiao">Região</label><input id="cRegiao" value="${esc(c.regiao)}" placeholder="Ex.: Asa Norte"></div>
+        <div class="campo"><label for="cStatus">Status</label><select id="cStatus">${opcoes(STATUS, c.status)}</select></div>
+      </div>
+      <div class="campo"><label for="cMaps">Link do Google Maps</label><input id="cMaps" type="url" value="${esc(c.link_maps)}" placeholder="Cole o link do Maps"></div>
+      <div class="grade2">
+        <div class="campo"><label for="cFollow">Chamar de novo em</label><input id="cFollow" type="date" value="${esc(c.proximo_followup || "")}"><span class="dica">Vazio: coloco ${DIAS_FOLLOWUP} dias depois da abordagem.</span></div>
+        ${ehAdmin() ? `<div class="campo"><label for="cVend">Vendedor</label><select id="cVend">${opcoes(vendOpts, c.vendedor_id)}</select></div>` : ""}
+      </div>
+      <div class="campo"><label for="cObs">Anotações</label><textarea id="cObs" placeholder="Ex.: dono se chama Carlos, pediu pra chamar depois das 15h">${esc(c.observacoes)}</textarea></div>
+      <p class="erro" id="erroContato" role="alert"></p>
+      <div class="janela-pe">
+        ${id && ehAdmin() ? `<button class="btn peq" type="button" data-act="apagar" data-id="${id}" style="color:var(--bad)">Apagar</button>` : "<span></span>"}
+        <button class="btn roxo" type="submit">${id ? "Salvar" : "Cadastrar"}</button>
+      </div>
+    </form>`;
+  $("fundo").hidden = false;
+  $("cNegocio").focus();
+  const tel = $("cTel");
+  tel.addEventListener("input", () => {
+    const d = digitos(tel.value); const dup = d.length >= 10 && S.contatos.find(x => x.id !== id && digitos(x.telefone) === d);
+    $("dupTel").innerHTML = dup ? `<span class="atrasado">Já cadastrado por ${esc(nomeVend(dup.vendedor_id))} (${esc(dup.negocio)})</span>` : "";
+  });
+  $("formContato").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const erro = $("erroContato");
+    const dados = {
+      negocio: $("cNegocio").value.trim(),
+      telefone: digitos($("cTel").value) || null,
+      nicho: $("cNicho").value,
+      regiao: $("cRegiao").value.trim() || null,
+      status: $("cStatus").value,
+      link_maps: $("cMaps").value.trim() || null,
+      proximo_followup: $("cFollow").value || null,
+      observacoes: $("cObs").value.trim() || null,
+      vendedor_id: ehAdmin() && $("cVend") ? $("cVend").value : (c.vendedor_id || S.me.id),
+    };
+    if (!dados.negocio) { erro.textContent = "Coloque o nome do negócio."; return; }
+    const dup = dados.telefone && S.contatos.find(x => x.id !== id && digitos(x.telefone) === dados.telefone);
+    if (dup) { erro.textContent = `Esse telefone já é de ${dup.negocio}, com ${nomeVend(dup.vendedor_id)}.`; return; }
+    if (!dados.proximo_followup && ["abordado", "respondeu", "viu_previa"].includes(dados.status)) dados.proximo_followup = maisDias(DIAS_FOLLOWUP);
+    const r = id ? await sb.from("contatos").update(dados).eq("id", id).select().single()
+                 : await sb.from("contatos").insert(dados).select().single();
+    if (r.error) { erro.textContent = msgErro(r.error); return; }
+    if (id) S.contatos = S.contatos.map(x => x.id === id ? r.data : x); else S.contatos.unshift(r.data);
+    fecharJanela(); aviso(id ? "Contato salvo" : "Contato cadastrado"); render();
+  });
+}
+function fecharJanela() { $("fundo").hidden = true; $("janela").innerHTML = ""; }
+
+async function mudarStatus(id, status) {
+  const c = S.contatos.find(x => x.id === id); if (!c) return;
+  const dados = { status };
+  if (["abordado", "respondeu", "viu_previa"].includes(status)) dados.proximo_followup = maisDias(DIAS_FOLLOWUP);
+  if (["fechou", "perdido"].includes(status)) dados.proximo_followup = null;
+  const r = await sb.from("contatos").update(dados).eq("id", id).select().single();
+  if (r.error) { aviso(msgErro(r.error)); render(); return; }
+  S.contatos = S.contatos.map(x => x.id === id ? r.data : x);
+  aviso(status === "fechou" ? "Boa! Avisa o Gabriel pra registrar a venda" : `Status: ${ST_NOME[status]}`);
+  render();
+}
+
+/* ===== Mensagens ===== */
+const PRIMEIRA = {
+  comida: "Oi, tudo bem? Vi a {negocio} no Google Maps e fiquei com vontade de pedir. Vocês já recebem pedido pelo WhatsApp?\n\nEu sou da Kode, a gente monta cardápio digital com foto e preço de cada item. O cliente escolhe, e o pedido já chega pronto no WhatsApp de vocês.\n\nPosso montar uma prévia com o cardápio de vocês pra você ver como fica? Sem compromisso.",
+  liberal: "Olá, tudo bem? Encontrei {negocio} no Google Maps.\n\nHoje muita gente pesquisa no Google antes de escolher um profissional, e um site próprio passa confiança logo de cara. Eu sou da Kode, a gente faz sites simples, profissionais e com botão direto pro WhatsApp.\n\nPosso preparar uma prévia do seu site pra você ver como ficaria? Sem compromisso.",
+  beleza: "Oi! Vi o {negocio} no Google Maps e os trabalhos de vocês são lindos.\n\nJá pensaram em ter um site com os serviços, as fotos e um botão pra cliente agendar pelo WhatsApp? Eu sou da Kode e monto isso com a identidade visual de vocês.\n\nPosso fazer uma prévia pra você ver? Sem compromisso.",
+  servicos: "Olá, tudo bem? Vi a {negocio} no Google Maps.\n\nUm site com seus serviços, a região que você atende e um botão de orçamento pelo WhatsApp ajuda a aparecer no Google e a fechar mais clientes. Eu sou da Kode, a gente faz isso.\n\nPosso montar uma prévia gratuita pra você ver como ficaria?",
+  outro: "Olá, tudo bem? Vi a {negocio} no Google Maps e gostei muito do trabalho de vocês.\n\nEu sou da Kode, a gente cria sites com a cara do negócio, feitos pro celular e com botão direto pro WhatsApp.\n\nPosso montar uma prévia gratuita do site de vocês pra você ver? Sem compromisso.",
+};
+const SEQUENCIA = [
+  ["Follow-up", "2 dias depois, se não respondeu", "Oi, tudo certo? Passando de novo sobre a prévia do site da {negocio}. Se quiser, já começo a montar e te mando pra ver. Pode ser?"],
+  ["Depois da prévia", "quando o cliente já viu", "E aí, o que achou da prévia? Se quiser trocar cor, foto ou texto, é só falar que a gente ajusta.\n\nPra colocar no ar fica [VALOR], e o primeiro mês de manutenção é por nossa conta."],
+  ["\"Já tenho Instagram\"", "objeção mais comum", "Faz sentido! O Instagram é ótimo pra mostrar o dia a dia. Só que quando alguém pesquisa no Google, é o site que aparece. O site é onde o cliente novo te acha, e o Instagram é onde ele te acompanha. Um ajuda o outro."],
+  ["Último toque", "5 a 7 dias sem resposta", "Oi! Vou deixar a prévia da {negocio} guardada aqui. Se mais pra frente fizer sentido ter o site, é só me chamar. Valeu e sucesso!"],
+];
+function preencher(t) {
+  const n = S.msg.negocio.trim();
+  return esc(t).replace(/\{negocio\}/g, n ? `<mark>${esc(n)}</mark>` : "<mark>[nome do negócio]</mark>").replace(/\[VALOR\]/g, "<mark>[VALOR]</mark>");
+}
+function textoFinal(t) { const n = S.msg.negocio.trim() || "[nome do negócio]"; return t.replace(/\{negocio\}/g, n); }
+function vMensagens() {
+  const blocos = [["Primeira mensagem", NICHO_NOME[S.msg.nicho], PRIMEIRA[S.msg.nicho]], ...SEQUENCIA];
+  return `
+  <div class="cabeca"><div><h1>Mensagens</h1><p class="sub">Escreva o nome do negócio, escolha o nicho e copie. Troque uma palavra ou outra pra não parecer robô.</p></div></div>
+  <div class="duas">
+    <section class="painel">
+      <div class="grade2">
+        <div class="campo"><label for="mNegocio">Nome do negócio</label><input id="mNegocio" value="${esc(S.msg.negocio)}" placeholder="Ex.: Açaí do Bloco"></div>
+        <div class="campo"><label for="mNicho">Nicho</label><select id="mNicho">${opcoes(NICHOS, S.msg.nicho)}</select></div>
+      </div>
+      <div class="msgs" id="listaMsgs">${blocos.map(([t, q, txt], i) => `
+        <div class="msg${i === 0 ? " principal" : ""}">
+          <div class="msg-topo"><h3><span class="passo">${i + 1}</span>${esc(t)}</h3><span class="msg-quando">${esc(q)}</span></div>
+          <p class="msg-texto">${preencher(txt)}</p>
+          <div class="msg-pe"><button class="btn peq${i === 0 ? " roxo" : ""}" type="button" data-act="copiar" data-i="${i}">${ic("copiar")}Copiar</button></div>
+        </div>`).join("")}</div>
+    </section>
+    <section class="painel">
+      <div class="painel-topo"><h2>${ic("dica")}O que funciona</h2></div>
+      <ol class="dicas">
+        <li><span><b>Não mande link no primeiro contato.</b>Link de quem a pessoa não conhece parece golpe. Ofereça a prévia e espere o "pode mandar".</span></li>
+        <li><span><b>Fale do negócio deles.</b>Cite algo que você viu no Maps: uma foto, um prato, uma avaliação boa.</span></li>
+        <li><span><b>Volte a chamar.</b>Boa parte das vendas sai no segundo ou terceiro contato. O painel avisa quando chamar de novo.</span></li>
+        <li><span><b>Escolha o horário.</b>Meio da manhã ou meio da tarde. Restaurante, evite a hora do almoço e do jantar.</span></li>
+        <li><span><b>Marque o status na hora.</b>Assim o time não aborda o mesmo negócio duas vezes e sua comissão fica garantida.</span></li>
+        <li><span><b>Fechou?</b>Mude o status pra "Fechou" e avise o Gabriel. Ele registra a venda e sua comissão aparece em Comissões.</span></li>
+      </ol>
+    </section>
+  </div>`;
+}
+
+/* ===== Comissões ===== */
+function vComissoes() {
+  const id = ehAdmin() ? null : S.me.id;
+  const vendas = id ? S.vendas.filter(v => v.vendedor_id === id) : S.vendas;
+  const ids = new Set(vendas.map(v => v.id));
+  const pags = S.pagamentos.filter(p => ids.has(p.venda_id));
+  const t = totaisComissao(id);
+  const mensal = vendas.reduce((s, v) => s + (+v.mensalidade || 0), 0) * (id ? pctDe(id) / 100 : 1);
+  const negocioDe = (v) => { const c = S.contatos.find(x => x.id === v.contato_id); return c ? c.negocio : "Contato removido"; };
+  return `
+  <div class="cabeca"><div><h1>Comissões</h1><p class="sub">${id ? `Você ganha ${pctDe(id)}% de tudo que o cliente paga: a venda e cada mensalidade de manutenção.` : "Comissão de cada vendedor sobre a venda e as mensalidades."}</p></div></div>
+  <div class="blocos tres">
+    <div class="bloco destaque" style="grid-column:auto">
+      <div class="bloco-topo"><span class="label">${id ? "A receber" : "A pagar"}</span><span class="bloco-ico">${ic("carteira")}</span></div>
+      <span class="valor">${brl(t.apagar)}</span><span class="det">comissão de pagamentos que já entraram</span>
+    </div>
+    <div class="bloco">
+      <div class="bloco-topo"><span class="label">${id ? "Já recebido" : "Já pago"}</span><span class="bloco-ico">${ic("check")}</span></div>
+      <span class="valor">${brl(t.paga)}</span><span class="det">total de comissão acertada</span>
+    </div>
+    <div class="bloco dinheiro">
+      <div class="bloco-topo"><span class="label">${id ? "Renda mensal" : "Mensalidades"}</span><span class="bloco-ico">${ic("relogio")}</span></div>
+      <span class="valor">${brl(mensal)}</span><span class="det">${id ? "por mês, enquanto os clientes seguirem na manutenção" : "soma das manutenções ativas"}</span>
+    </div>
+  </div>
+  <section class="painel">
+    <div class="painel-topo"><h2>${ic("check")}${id ? "Suas vendas" : "Vendas"}</h2><span class="label">${vendas.length}</span></div>
+    ${vendas.length ? `<div class="tabela-wrap"><table>
+      <thead><tr><th>Cliente</th>${id ? "" : "<th>Vendedor</th>"}<th>Produto</th><th class="d">Valor</th><th class="d">Mensalidade</th><th>Data</th></tr></thead>
+      <tbody>${vendas.map(v => `<tr><td><b>${esc(negocioDe(v))}</b></td>${id ? "" : `<td>${esc(nomeVend(v.vendedor_id))}</td>`}<td>${esc(PROD_NOME[v.produto] || v.produto)}</td><td class="d num">${brl(v.valor)}</td><td class="d num">${brl(v.mensalidade)}</td><td class="num">${dataBR(v.data_venda)}</td></tr>`).join("")}</tbody>
+    </table></div>` : `<div class="vazio">${ic("check")}<span>Nenhuma venda registrada ainda. Quando um contato seu fechar, o Gabriel registra aqui.</span></div>`}
+  </section>
+  <section class="painel">
+    <div class="painel-topo"><h2>${ic("carteira")}Pagamentos e comissão</h2><span class="label">${pags.length}</span></div>
+    ${pags.length ? `<div class="tabela-wrap"><table>
+      <thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th class="d">Cliente pagou</th><th class="d">Comissão</th><th>Situação</th>${ehAdmin() ? "<th></th>" : ""}</tr></thead>
+      <tbody>${pags.map(p => { const v = S.vendas.find(x => x.id === p.venda_id); return `<tr>
+        <td class="num">${dataBR(p.pago_em)}</td><td>${esc(v ? negocioDe(v) : "")}${id || !v ? "" : ` <span style="color:var(--muted)">· ${esc(nomeVend(v.vendedor_id))}</span>`}</td>
+        <td>${p.tipo === "venda" ? "Venda" : "Mensalidade"}</td><td class="d num">${brl(p.valor)}</td><td class="d num">${brl(comissaoDe(p))}</td>
+        <td><span class="st" style="--c:var(${p.comissao_paga ? "--ok" : "--warn"})">${p.comissao_paga ? (id ? "Recebida" : "Paga") : (id ? "A receber" : "A pagar")}</span></td>
+        ${ehAdmin() ? `<td><button class="btn peq" type="button" data-act="togglePago" data-id="${p.id}">${p.comissao_paga ? "Desfazer" : "Marcar paga"}</button></td>` : ""}
+      </tr>`; }).join("")}</tbody>
+    </table></div>` : `<div class="vazio">${ic("carteira")}<span>Nenhum pagamento de cliente registrado ainda.</span></div>`}
+  </section>`;
+}
+
+/* ===== Equipe (só Gabriel) ===== */
+function vEquipe() {
+  if (!ehAdmin()) return vInicio();
+  const espera = S.vendedores.filter(v => !v.ativo);
+  const time = S.vendedores.filter(v => v.ativo);
+  const h = hoje(), d7 = maisDias(-6);
+  const contatoOpts = [...S.contatos].sort((a, b) => (a.status === "fechou" ? 0 : 1) - (b.status === "fechou" ? 0 : 1) || a.negocio.localeCompare(b.negocio))
+    .map(c => [c.id, `${c.negocio} · ${nomeVend(c.vendedor_id)}${c.status === "fechou" ? " · fechou" : ""}`]);
+  const vendaOpts = S.vendas.map(v => { const c = S.contatos.find(x => x.id === v.contato_id); return [v.id, `${c ? c.negocio : "Venda"} · ${PROD_NOME[v.produto]} · ${dataBR(v.data_venda)}`]; });
+  return `
+  <div class="cabeca"><div><h1>Equipe</h1><p class="sub">Só você vê esta aba. Aqui você libera acessos e registra vendas e pagamentos dos clientes.</p></div></div>
+  ${espera.length ? `<section class="painel" style="border-color:rgba(139,92,246,.5);box-shadow:0 0 0 4px rgba(139,92,246,.08)">
+    <div class="painel-topo"><h2>${ic("equipe")}Esperando liberação</h2><span class="label">${espera.length}</span></div>
+    <div class="lista">${espera.map(v => `<div class="item"><span class="avatar" aria-hidden="true">${esc(iniciais(v.nome))}</span><div style="min-width:0"><div class="item-nome">${esc(v.nome)}</div><div class="item-meta"><span>${esc(v.email || "")}</span><span class="sep">·</span><span>conta criada em ${dataBR(v.criado_em)}</span></div></div>
+      <div class="item-acoes"><button class="btn roxo peq" type="button" data-act="liberar" data-id="${v.id}">Liberar acesso</button><button class="btn peq" type="button" data-act="recusar" data-id="${v.id}">Recusar</button></div></div>`).join("")}</div>
+  </section>` : ""}
+  <section class="painel">
+    <div class="painel-topo"><h2>${ic("contatos")}Time</h2><span class="label">meta: ${META_DIARIA} abordagens/dia</span></div>
+    <div class="tabela-wrap"><table>
+      <thead><tr><th>Vendedor</th><th class="d">Hoje</th><th class="d">7 dias</th><th class="d">Em andamento</th><th class="d">Fechou</th><th class="d">Comissão</th><th class="d">A pagar</th></tr></thead>
+      <tbody>${time.map(v => { const cs = S.contatos.filter(c => c.vendedor_id === v.id); const t = totaisComissao(v.id); const sete = cs.filter(c => c.abordado_em && diaDe(c.abordado_em) >= d7).length; return `<tr>
+        <td><span class="pessoa"><span class="avatar" aria-hidden="true">${esc(iniciais(v.nome))}</span><b>${esc(v.nome)}</b>${v.papel === "admin" ? '<span style="color:var(--muted)">· você</span>' : ""}</span></td>
+        <td class="d num">${abordagensEm(cs, h)}</td><td class="d num">${sete}</td>
+        <td class="d num">${cs.filter(c => ATIVOS.includes(c.status)).length}</td><td class="d num">${cs.filter(c => c.status === "fechou").length}</td>
+        <td class="d num">${+v.comissao_pct}%</td><td class="d num ${t.apagar > 0 ? "apagar" : ""}">${brl(t.apagar)}</td></tr>`; }).join("")}</tbody>
+    </table></div>
+  </section>
+  <div class="duas">
+    <section class="painel">
+      <div class="painel-topo"><h2>${ic("check")}Registrar venda</h2></div>
+      ${contatoOpts.length ? `<form id="formVenda" novalidate style="display:flex;flex-direction:column;gap:14px">
+        <div class="campo"><label for="vContato">Cliente</label><select id="vContato">${opcoes(contatoOpts, "")}</select><span class="dica">A comissão vai pra quem trouxe o contato.</span></div>
+        <div class="grade2">
+          <div class="campo"><label for="vProduto">Produto</label><select id="vProduto">${opcoes(PRODUTOS, "site")}</select></div>
+          <div class="campo"><label for="vData">Data</label><input id="vData" type="date" value="${h}"></div>
+        </div>
+        <div class="grade2">
+          <div class="campo"><label for="vValor">Valor da venda (R$)</label><input id="vValor" type="number" min="0" step="0.01" inputmode="decimal"></div>
+          <div class="campo"><label for="vMensal">Manutenção por mês (R$)</label><input id="vMensal" type="number" min="0" step="0.01" inputmode="decimal" value="0"><span class="dica">O 1º mês é grátis.</span></div>
+        </div>
+        <p class="erro" id="erroVenda" role="alert"></p>
+        <button class="btn roxo" type="submit">Registrar venda</button>
+      </form>` : `<div class="vazio">${ic("contatos")}<span>Cadastre um contato antes de registrar uma venda.</span></div>`}
+    </section>
+    <section class="painel">
+      <div class="painel-topo"><h2>${ic("carteira")}Pagamento do cliente</h2></div>
+      ${vendaOpts.length ? `<form id="formPag" novalidate style="display:flex;flex-direction:column;gap:14px">
+        <div class="campo"><label for="pVenda">Venda</label><select id="pVenda">${opcoes(vendaOpts, "")}</select></div>
+        <div class="grade2">
+          <div class="campo"><label for="pTipo">Tipo</label><select id="pTipo">${opcoes([["venda", "Pagamento da venda"], ["mensalidade", "Mensalidade"]], "venda")}</select></div>
+          <div class="campo"><label for="pData">Data</label><input id="pData" type="date" value="${h}"></div>
+        </div>
+        <div class="campo"><label for="pValor">Valor recebido (R$)</label><input id="pValor" type="number" min="0" step="0.01" inputmode="decimal"><span class="dica">Pode registrar em partes, como entrada e restante.</span></div>
+        <p class="erro" id="erroPag" role="alert"></p>
+        <button class="btn roxo" type="submit">Registrar pagamento</button>
+      </form>` : `<div class="vazio">${ic("carteira")}<span>Registre uma venda primeiro.</span></div>`}
+    </section>
+  </div>`;
+}
+
+async function salvarVenda() {
+  const erro = $("erroVenda");
+  const c = S.contatos.find(x => x.id === $("vContato").value);
+  const valor = parseFloat($("vValor").value), mensal = parseFloat($("vMensal").value) || 0;
+  if (!c) { erro.textContent = "Escolha o cliente."; return; }
+  if (!(valor >= 0) || $("vValor").value === "") { erro.textContent = "Coloque o valor da venda."; return; }
+  const r = await sb.from("vendas").insert({ contato_id: c.id, vendedor_id: c.vendedor_id, produto: $("vProduto").value, valor, mensalidade: mensal, data_venda: $("vData").value || hoje() }).select().single();
+  if (r.error) { erro.textContent = msgErro(r.error); return; }
+  S.vendas.unshift(r.data);
+  if (c.status !== "fechou") { const u = await sb.from("contatos").update({ status: "fechou", proximo_followup: null }).eq("id", c.id).select().single(); if (!u.error) S.contatos = S.contatos.map(x => x.id === c.id ? u.data : x); }
+  aviso("Venda registrada"); render();
+}
+async function salvarPagamento() {
+  const erro = $("erroPag");
+  const valor = parseFloat($("pValor").value);
+  if (!(valor > 0)) { erro.textContent = "Coloque o valor que o cliente pagou."; return; }
+  const r = await sb.from("pagamentos").insert({ venda_id: $("pVenda").value, tipo: $("pTipo").value, valor, pago_em: $("pData").value || hoje() }).select().single();
+  if (r.error) { erro.textContent = msgErro(r.error); return; }
+  S.pagamentos.unshift(r.data); aviso("Pagamento registrado"); render();
+}
+
+/* ===== Eventos ===== */
+document.addEventListener("click", async (ev) => {
+  const el = ev.target.closest("[data-act]"); if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id;
+  if (act === "aba") { S.view = el.dataset.v; history.replaceState(null, "", "#" + S.view); entrar(); render(); window.scrollTo(0, 0); }
+  else if (act === "sair") { await sb.auth.signOut(); }
+  else if (act === "novo") abrirContato(null);
+  else if (act === "editar") abrirContato(id);
+  else if (act === "fechar") fecharJanela();
+  else if (act === "dono") { S.f.dono = el.dataset.v; render(); }
+  else if (act === "fst") { S.f.status = el.dataset.v; render(); }
+  else if (act === "apagar") {
+    if (el.dataset.confirma !== "1") { el.dataset.confirma = "1"; el.textContent = "Toque de novo para apagar"; return; }
+    const r = await sb.from("contatos").delete().eq("id", id);
+    if (r.error) { aviso(msgErro(r.error)); return; }
+    S.contatos = S.contatos.filter(x => x.id !== id); fecharJanela(); aviso("Contato apagado"); render();
+  }
+  else if (act === "copiar") {
+    const i = +el.dataset.i; const lista = [PRIMEIRA[S.msg.nicho], ...SEQUENCIA.map(s => s[2])];
+    const txt = textoFinal(lista[i]);
+    try { await navigator.clipboard.writeText(txt); aviso("Mensagem copiada"); }
+    catch { const p = el.closest(".msg").querySelector(".msg-texto"); const sel = getSelection(); const rg = document.createRange(); rg.selectNodeContents(p); sel.removeAllRanges(); sel.addRange(rg); aviso("Texto selecionado. Copie com Ctrl+C"); }
+  }
+  else if (act === "liberar") {
+    const r = await sb.from("vendedores").update({ ativo: true }).eq("id", id).select().single();
+    if (r.error) { aviso(msgErro(r.error)); return; }
+    S.vendedores = S.vendedores.map(v => v.id === id ? r.data : v); aviso(`Acesso liberado pra ${primeiroNome(r.data.nome)}`); render();
+  }
+  else if (act === "recusar") {
+    if (el.dataset.confirma !== "1") { el.dataset.confirma = "1"; el.textContent = "Confirmar"; return; }
+    const r = await sb.from("vendedores").delete().eq("id", id);
+    if (r.error) { aviso(msgErro(r.error)); return; }
+    S.vendedores = S.vendedores.filter(v => v.id !== id); aviso("Pedido recusado"); render();
+  }
+  else if (act === "togglePago") {
+    const p = S.pagamentos.find(x => x.id === id); if (!p) return;
+    const r = await sb.from("pagamentos").update({ comissao_paga: !p.comissao_paga }).eq("id", id).select().single();
+    if (r.error) { aviso(msgErro(r.error)); return; }
+    S.pagamentos = S.pagamentos.map(x => x.id === id ? r.data : x); aviso(r.data.comissao_paga ? "Comissão marcada como paga" : "Marcação desfeita"); render();
+  }
+});
+document.addEventListener("change", (ev) => {
+  const el = ev.target;
+  if (el.dataset && el.dataset.act === "status") mudarStatus(el.dataset.id, el.value);
+  else if (el.id === "mNicho") { S.msg.nicho = el.value; render(); }
+});
+document.addEventListener("input", (ev) => {
+  const el = ev.target;
+  if (el.id === "busca") {
+    S.f.busca = el.value; const pos = el.selectionStart; render();
+    const b = $("busca"); b.focus(); try { b.setSelectionRange(pos, pos); } catch {}
+  } else if (el.id === "mNegocio") {
+    S.msg.negocio = el.value;
+    const lista = [PRIMEIRA[S.msg.nicho], ...SEQUENCIA.map(s => s[2])];
+    document.querySelectorAll("#listaMsgs .msg-texto").forEach((p, i) => { p.innerHTML = preencher(lista[i]); });
+  }
+});
+document.addEventListener("submit", (ev) => {
+  if (ev.target.id === "formVenda") { ev.preventDefault(); salvarVenda(); }
+  else if (ev.target.id === "formPag") { ev.preventDefault(); salvarPagamento(); }
+});
+$("fundo").addEventListener("click", (ev) => { if (ev.target === $("fundo")) fecharJanela(); });
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !$("fundo").hidden) fecharJanela(); });
+document.addEventListener("visibilitychange", async () => { if (!document.hidden && S.me && S.me.ativo && $("fundo").hidden) { await recarregar(); render(); } });
+
+/* ===== Início ===== */
+if (/type=recovery/.test(location.hash)) mostrarTela("telaSenha"); else carregar();
+</script>
+</body>
+</html>
