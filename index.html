@@ -450,9 +450,9 @@ const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing p
 const PROD_NOME = Object.fromEntries(PRODUTOS);
 // Preços do Guia de Vendas (pagamento: metade na aprovação da prévia, metade na entrega)
 const PRECOS = {
-  cardapio: { valor: 250, mensal: 40, prazo: "3 dias", para: "Lanchonetes, hamburguerias, pizzarias, docerias, marmitas" },
-  landing_page: { valor: 700, mensal: 60, prazo: "7 dias", para: "Advogados, dentistas, psicólogos, salões, oficinas, eletricistas" },
-  site: { valor: 1500, mensal: 100, prazo: "15 dias", para: "Clínicas, agências, escolas, lojas", aPartir: true },
+  cardapio: { valor: 250, mensal: 80, prazo: "3 dias", para: "Lanchonetes, hamburguerias, pizzarias, docerias, marmitas" },
+  landing_page: { valor: 700, mensal: 120, prazo: "7 dias", para: "Advogados, dentistas, psicólogos, salões, oficinas, eletricistas" },
+  site: { valor: 1500, mensal: 200, prazo: "15 dias", para: "Clínicas, agências, escolas, lojas", aPartir: true },
 };
 const PRODUTO_DO_NICHO = { comida: "cardapio", liberal: "landing_page", beleza: "landing_page", servicos: "landing_page", outro: "landing_page" };
 const COMISSAO_PADRAO = 40;
@@ -979,7 +979,7 @@ function vEquipe() {
         </div>
         <div class="grade2">
           <div class="campo"><label for="vValor">Valor da venda (R$)</label><input id="vValor" type="number" min="0" step="0.01" inputmode="decimal" value="700"><span class="dica">Preenchido com a tabela. Mude se tiver negociado.</span></div>
-          <div class="campo"><label for="vMensal">Manutenção por mês (R$)</label><input id="vMensal" type="number" min="0" step="0.01" inputmode="decimal" value="60"><span class="dica">O 1º mês é grátis.</span></div>
+          <div class="campo"><label for="vMensal">Manutenção por mês (R$)</label><input id="vMensal" type="number" min="0" step="0.01" inputmode="decimal" value="120"><span class="dica">O 1º mês é grátis.</span></div>
         </div>
         <p class="erro" id="erroVenda" role="alert"></p>
         <button class="btn roxo" type="submit">Registrar venda</button>
