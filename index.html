@@ -450,12 +450,13 @@ const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing p
 const PROD_NOME = Object.fromEntries(PRODUTOS);
 // Preços do Guia de Vendas (pagamento: metade na aprovação da prévia, metade na entrega)
 const PRECOS = {
-  cardapio: { valor: 250, mensal: 80, prazo: "3 dias", para: "Lanchonetes, hamburguerias, pizzarias, docerias, marmitas" },
+  cardapio: { valor: 250, mensal: 60, prazo: "3 dias", para: "Lanchonetes, hamburguerias, pizzarias, docerias, marmitas" },
   landing_page: { valor: 700, mensal: 120, prazo: "7 dias", para: "Advogados, dentistas, psicólogos, salões, oficinas, eletricistas" },
   site: { valor: 1500, mensal: 200, prazo: "15 dias", para: "Clínicas, agências, escolas, lojas", aPartir: true },
 };
 const PRODUTO_DO_NICHO = { comida: "cardapio", liberal: "landing_page", beleza: "landing_page", servicos: "landing_page", outro: "landing_page" };
 const COMISSAO_PADRAO = 40;
+const MESES_PAGOS_NO_ANUAL = 10; // plano anual: paga 10 mensalidades e leva 12 meses
 function reais(n) { return brl(n).replace(",00", ""); }
 
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
@@ -846,22 +847,22 @@ const PRIMEIRA = {
 };
 const SEQUENCIA = [
   ["Follow-up", "2 dias depois, se não respondeu", "Oi, tudo certo? Passando de novo sobre a prévia do site da {negocio}. Se quiser, já começo a montar e te mando pra ver. Pode ser?"],
-  ["Depois da prévia", "quando o cliente já viu", "E aí, o que achou da prévia? Se quiser trocar cor, foto ou texto, é só falar que a gente ajusta.\n\nPra colocar no ar fica [VALOR], metade agora e metade na entrega. O primeiro mês de manutenção é por nossa conta: hospedagem, ajustes e suporte. Depois fica [MENSAL] por mês, se você quiser continuar. O domínio .com.br é à parte, cerca de R$ 40 por ano."],
+  ["Depois da prévia", "quando o cliente já viu", "E aí, o que achou da prévia? Se quiser trocar cor, foto ou texto, é só falar que a gente ajusta.\n\nPra colocar no ar fica [VALOR], metade agora e metade na entrega. O primeiro mês de manutenção é por nossa conta: hospedagem, ajustes e suporte. Depois fica [MENSAL] por mês, se você quiser continuar. Pagando o ano de uma vez, fica [ANUAL] por 12 meses: são 2 meses grátis. O domínio .com.br é à parte, cerca de R$ 40 por ano."],
   ["\"Já tenho Instagram\"", "objeção mais comum", "Faz sentido! O Instagram é ótimo pra mostrar o dia a dia. Só que quando alguém pesquisa no Google, é o site que aparece. O site é onde o cliente novo te acha, e o Instagram é onde ele te acompanha. Um ajuda o outro."],
   ["Último toque", "5 a 7 dias sem resposta", "Oi! Vou deixar a prévia da {negocio} guardada aqui. Se mais pra frente fizer sentido ter o site, é só me chamar. Valeu e sucesso!"],
 ];
 function preencher(t) {
   const n = S.msg.negocio.trim();
-  const [vv, vm] = valoresMsg();
-  return esc(t).replace(/\{negocio\}/g, n ? `<mark>${esc(n)}</mark>` : "<mark>[nome do negócio]</mark>").split("[VALOR]").join("<mark>" + vv + "</mark>").split("[MENSAL]").join("<mark>" + vm + "</mark>");
+  const [vv, vm, va] = valoresMsg();
+  return esc(t).replace(/\{negocio\}/g, n ? `<mark>${esc(n)}</mark>` : "<mark>[nome do negócio]</mark>").split("[VALOR]").join("<mark>" + vv + "</mark>").split("[MENSAL]").join("<mark>" + vm + "</mark>").split("[ANUAL]").join("<mark>" + va + "</mark>");
 }
-function valoresMsg() { const p = PRECOS[PRODUTO_DO_NICHO[S.msg.nicho]]; return [(p.aPartir ? "a partir de " : "") + reais(p.valor), reais(p.mensal)]; }
-function textoFinal(t) { const n = S.msg.negocio.trim() || "[nome do negócio]"; const [vv, vm] = valoresMsg(); return t.replace(/\{negocio\}/g, n).split("[VALOR]").join(vv).split("[MENSAL]").join(vm); }
+function valoresMsg() { const p = PRECOS[PRODUTO_DO_NICHO[S.msg.nicho]]; return [(p.aPartir ? "a partir de " : "") + reais(p.valor), reais(p.mensal), reais(p.mensal * MESES_PAGOS_NO_ANUAL)]; }
+function textoFinal(t) { const n = S.msg.negocio.trim() || "[nome do negócio]"; const [vv, vm, va] = valoresMsg(); return t.replace(/\{negocio\}/g, n).split("[VALOR]").join(vv).split("[MENSAL]").join(vm).split("[ANUAL]").join(va); }
 function tabelaPrecos() {
   return '<section class="painel"><div class="painel-topo"><h2>' + ic("carteira") + 'Tabela de preços</h2><span class="label">comissão de ' + COMISSAO_PADRAO + '%</span></div>'
-    + '<div class="tabela-wrap"><table><thead><tr><th>Produto</th><th>Para quem</th><th class="d">Preço</th><th class="d">Prazo</th><th class="d">Manutenção</th><th class="d">Sua comissão</th></tr></thead><tbody>'
-    + Object.entries(PRECOS).map(([k, p]) => '<tr><td><b>' + esc(PROD_NOME[k]) + '</b></td><td style="color:var(--muted)">' + esc(p.para) + '</td><td class="d num">' + (p.aPartir ? "a partir de " : "") + reais(p.valor) + '</td><td class="d num">' + p.prazo + '</td><td class="d num">' + reais(p.mensal) + '/mês</td><td class="d num">' + reais(p.valor * COMISSAO_PADRAO / 100) + ' + ' + reais(p.mensal * COMISSAO_PADRAO / 100) + '/mês</td></tr>').join("")
-    + '</tbody></table></div><p class="nota">Pagamento: metade na aprovação da prévia e metade na entrega, sempre no Pix do Gabriel. O prazo conta a partir da entrada. O domínio .com.br é à parte, cerca de R$ 40 por ano. O 1º mês de manutenção é grátis. Desconto, parcelamento diferente ou prazo especial só com autorização do Gabriel.</p></section>';
+    + '<div class="tabela-wrap"><table><thead><tr><th>Produto</th><th>Para quem</th><th class="d">Preço</th><th class="d">Prazo</th><th class="d">Manutenção</th><th class="d">Plano anual</th><th class="d">Sua comissão</th></tr></thead><tbody>'
+    + Object.entries(PRECOS).map(([k, p]) => '<tr><td><b>' + esc(PROD_NOME[k]) + '</b></td><td style="color:var(--muted)">' + esc(p.para) + '</td><td class="d num">' + (p.aPartir ? "a partir de " : "") + reais(p.valor) + '</td><td class="d num">' + p.prazo + '</td><td class="d num">' + reais(p.mensal) + '/mês</td><td class="d num">' + reais(p.mensal * MESES_PAGOS_NO_ANUAL) + '/ano</td><td class="d num">' + reais(p.valor * COMISSAO_PADRAO / 100) + ' + ' + reais(p.mensal * COMISSAO_PADRAO / 100) + '/mês</td></tr>').join("")
+    + '</tbody></table></div><p class="nota">Pagamento: metade na aprovação da prévia e metade na entrega, sempre no Pix do Gabriel. O prazo conta a partir da entrada. O domínio .com.br é à parte, cerca de R$ 40 por ano. O 1º mês de manutenção é grátis. No plano anual, o cliente paga 10 mensalidades de uma vez e leva 12 meses, e a comissão de 40% vale sobre o valor pago. Desconto, parcelamento diferente ou prazo especial só com autorização do Gabriel.</p></section>';
 }
 function vMensagens() {
   const blocos = [["Primeira mensagem", NICHO_NOME[S.msg.nicho], PRIMEIRA[S.msg.nicho]], ...SEQUENCIA];
