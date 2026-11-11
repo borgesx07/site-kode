@@ -284,6 +284,7 @@ table { width: 100%; border-collapse: collapse; min-width: 580px; font-size: .9r
 th, td { text-align: left; padding: 12px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
 thead th { border-top: 0; font-family: var(--f-mono); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding-top: 0; }
 td.d, th.d { text-align: right; }
+td.num { white-space: nowrap; }
 .pago { color: var(--ok); font-weight: 600; }
 .apagar { color: var(--warn); font-weight: 600; }
 .pessoa { display: flex; align-items: center; gap: 10px; }
@@ -445,8 +446,17 @@ const ST_NOME = Object.fromEntries(STATUS);
 const ATIVOS = ["novo", "abordado", "respondeu", "viu_previa"];
 const NICHOS = [["comida", "Comida e delivery"], ["liberal", "Profissional liberal"], ["beleza", "Beleza e estética"], ["servicos", "Serviços locais"], ["outro", "Outro"]];
 const NICHO_NOME = Object.fromEntries(NICHOS);
-const PRODUTOS = [["site", "Site"], ["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["outro", "Outro"]];
+const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["site", "Site completo"], ["outro", "Outro"]];
 const PROD_NOME = Object.fromEntries(PRODUTOS);
+// Preços do Guia de Vendas (pagamento: metade na aprovação da prévia, metade na entrega)
+const PRECOS = {
+  cardapio: { valor: 250, mensal: 40, prazo: "3 dias", para: "Lanchonetes, hamburguerias, pizzarias, docerias, marmitas" },
+  landing_page: { valor: 700, mensal: 60, prazo: "7 dias", para: "Advogados, dentistas, psicólogos, salões, oficinas, eletricistas" },
+  site: { valor: 1500, mensal: 100, prazo: "15 dias", para: "Clínicas, agências, escolas, lojas", aPartir: true },
+};
+const PRODUTO_DO_NICHO = { comida: "cardapio", liberal: "landing_page", beleza: "landing_page", servicos: "landing_page", outro: "landing_page" };
+const COMISSAO_PADRAO = 40;
+function reais(n) { return brl(n).replace(",00", ""); }
 
 const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
@@ -836,15 +846,23 @@ const PRIMEIRA = {
 };
 const SEQUENCIA = [
   ["Follow-up", "2 dias depois, se não respondeu", "Oi, tudo certo? Passando de novo sobre a prévia do site da {negocio}. Se quiser, já começo a montar e te mando pra ver. Pode ser?"],
-  ["Depois da prévia", "quando o cliente já viu", "E aí, o que achou da prévia? Se quiser trocar cor, foto ou texto, é só falar que a gente ajusta.\n\nPra colocar no ar fica [VALOR], e o primeiro mês de manutenção é por nossa conta."],
+  ["Depois da prévia", "quando o cliente já viu", "E aí, o que achou da prévia? Se quiser trocar cor, foto ou texto, é só falar que a gente ajusta.\n\nPra colocar no ar fica [VALOR], metade agora e metade na entrega. O primeiro mês de manutenção é por nossa conta: hospedagem, ajustes e suporte. Depois fica [MENSAL] por mês, se você quiser continuar. O domínio .com.br é à parte, cerca de R$ 40 por ano."],
   ["\"Já tenho Instagram\"", "objeção mais comum", "Faz sentido! O Instagram é ótimo pra mostrar o dia a dia. Só que quando alguém pesquisa no Google, é o site que aparece. O site é onde o cliente novo te acha, e o Instagram é onde ele te acompanha. Um ajuda o outro."],
   ["Último toque", "5 a 7 dias sem resposta", "Oi! Vou deixar a prévia da {negocio} guardada aqui. Se mais pra frente fizer sentido ter o site, é só me chamar. Valeu e sucesso!"],
 ];
 function preencher(t) {
   const n = S.msg.negocio.trim();
-  return esc(t).replace(/\{negocio\}/g, n ? `<mark>${esc(n)}</mark>` : "<mark>[nome do negócio]</mark>").replace(/\[VALOR\]/g, "<mark>[VALOR]</mark>");
+  const [vv, vm] = valoresMsg();
+  return esc(t).replace(/\{negocio\}/g, n ? `<mark>${esc(n)}</mark>` : "<mark>[nome do negócio]</mark>").split("[VALOR]").join("<mark>" + vv + "</mark>").split("[MENSAL]").join("<mark>" + vm + "</mark>");
 }
-function textoFinal(t) { const n = S.msg.negocio.trim() || "[nome do negócio]"; return t.replace(/\{negocio\}/g, n); }
+function valoresMsg() { const p = PRECOS[PRODUTO_DO_NICHO[S.msg.nicho]]; return [(p.aPartir ? "a partir de " : "") + reais(p.valor), reais(p.mensal)]; }
+function textoFinal(t) { const n = S.msg.negocio.trim() || "[nome do negócio]"; const [vv, vm] = valoresMsg(); return t.replace(/\{negocio\}/g, n).split("[VALOR]").join(vv).split("[MENSAL]").join(vm); }
+function tabelaPrecos() {
+  return '<section class="painel"><div class="painel-topo"><h2>' + ic("carteira") + 'Tabela de preços</h2><span class="label">comissão de ' + COMISSAO_PADRAO + '%</span></div>'
+    + '<div class="tabela-wrap"><table><thead><tr><th>Produto</th><th>Para quem</th><th class="d">Preço</th><th class="d">Prazo</th><th class="d">Manutenção</th><th class="d">Sua comissão</th></tr></thead><tbody>'
+    + Object.entries(PRECOS).map(([k, p]) => '<tr><td><b>' + esc(PROD_NOME[k]) + '</b></td><td style="color:var(--muted)">' + esc(p.para) + '</td><td class="d num">' + (p.aPartir ? "a partir de " : "") + reais(p.valor) + '</td><td class="d num">' + p.prazo + '</td><td class="d num">' + reais(p.mensal) + '/mês</td><td class="d num">' + reais(p.valor * COMISSAO_PADRAO / 100) + ' + ' + reais(p.mensal * COMISSAO_PADRAO / 100) + '/mês</td></tr>').join("")
+    + '</tbody></table></div><p class="nota">Pagamento: metade na aprovação da prévia e metade na entrega, sempre no Pix do Gabriel. O prazo conta a partir da entrada. O domínio .com.br é à parte, cerca de R$ 40 por ano. O 1º mês de manutenção é grátis. Desconto, parcelamento diferente ou prazo especial só com autorização do Gabriel.</p></section>';
+}
 function vMensagens() {
   const blocos = [["Primeira mensagem", NICHO_NOME[S.msg.nicho], PRIMEIRA[S.msg.nicho]], ...SEQUENCIA];
   return `
@@ -873,7 +891,8 @@ function vMensagens() {
         <li><span><b>Fechou?</b>Mude o status pra "Fechou" e avise o Gabriel. Ele registra a venda e sua comissão aparece em Comissões.</span></li>
       </ol>
     </section>
-  </div>`;
+  </div>
+  ${tabelaPrecos()}`;
 }
 
 /* ===== Comissões ===== */
@@ -955,12 +974,12 @@ function vEquipe() {
       ${contatoOpts.length ? `<form id="formVenda" novalidate style="display:flex;flex-direction:column;gap:14px">
         <div class="campo"><label for="vContato">Cliente</label><select id="vContato">${opcoes(contatoOpts, "")}</select><span class="dica">A comissão vai pra quem trouxe o contato.</span></div>
         <div class="grade2">
-          <div class="campo"><label for="vProduto">Produto</label><select id="vProduto">${opcoes(PRODUTOS, "site")}</select></div>
+          <div class="campo"><label for="vProduto">Produto</label><select id="vProduto">${opcoes(PRODUTOS, "landing_page")}</select></div>
           <div class="campo"><label for="vData">Data</label><input id="vData" type="date" value="${h}"></div>
         </div>
         <div class="grade2">
-          <div class="campo"><label for="vValor">Valor da venda (R$)</label><input id="vValor" type="number" min="0" step="0.01" inputmode="decimal"></div>
-          <div class="campo"><label for="vMensal">Manutenção por mês (R$)</label><input id="vMensal" type="number" min="0" step="0.01" inputmode="decimal" value="0"><span class="dica">O 1º mês é grátis.</span></div>
+          <div class="campo"><label for="vValor">Valor da venda (R$)</label><input id="vValor" type="number" min="0" step="0.01" inputmode="decimal" value="700"><span class="dica">Preenchido com a tabela. Mude se tiver negociado.</span></div>
+          <div class="campo"><label for="vMensal">Manutenção por mês (R$)</label><input id="vMensal" type="number" min="0" step="0.01" inputmode="decimal" value="60"><span class="dica">O 1º mês é grátis.</span></div>
         </div>
         <p class="erro" id="erroVenda" role="alert"></p>
         <button class="btn roxo" type="submit">Registrar venda</button>
@@ -982,6 +1001,7 @@ function vEquipe() {
   </div>`;
 }
 
+function preencherVenda() { const p = PRECOS[$("vProduto").value]; if (p) { $("vValor").value = p.valor; $("vMensal").value = p.mensal; } }
 async function salvarVenda() {
   const erro = $("erroVenda");
   const c = S.contatos.find(x => x.id === $("vContato").value);
@@ -1048,6 +1068,8 @@ document.addEventListener("change", (ev) => {
   const el = ev.target;
   if (el.dataset && el.dataset.act === "status") mudarStatus(el.dataset.id, el.value);
   else if (el.id === "mNicho") { S.msg.nicho = el.value; render(); }
+  else if (el.id === "vContato") { const c = S.contatos.find(x => x.id === el.value); if (c && PRODUTO_DO_NICHO[c.nicho]) { $("vProduto").value = PRODUTO_DO_NICHO[c.nicho]; preencherVenda(); } }
+  else if (el.id === "vProduto") preencherVenda();
 });
 document.addEventListener("input", (ev) => {
   const el = ev.target;
