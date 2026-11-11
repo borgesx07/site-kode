@@ -597,6 +597,7 @@ async function carregar() {
   if (error) { mostrarTela("telaEspera"); $("esperaTitulo").textContent = "Não consegui carregar sua conta"; $("esperaTexto").textContent = msgErro(error); return; }
   if (!me) { mostrarTela("telaEspera"); $("esperaTitulo").textContent = "Conta sem cadastro"; $("esperaTexto").textContent = "Sua conta existe, mas não está no time ainda. Fale com o Gabriel."; return; }
   S.me = me;
+  if (me.papel === "admin") S.f.dono = "todos";
   if (!me.ativo) { mostrarTela("telaEspera"); $("esperaTitulo").textContent = "Esperando liberação"; $("esperaTexto").textContent = "Sua conta foi criada. Agora o Gabriel precisa liberar seu acesso. Avisa ele e depois toca em \"Verificar de novo\"."; return; }
   mostrarTela("telaApp");
   $("euAvatar").textContent = $("celAvatar").textContent = iniciais(me.nome);
@@ -647,7 +648,7 @@ function abasVisiveis() {
   return a;
 }
 function render() {
-  const pend = pendentes(meus()).length;
+  const pend = pendentes(ehAdmin() ? S.contatos : meus()).length;
   const espera = ehAdmin() ? S.vendedores.filter(v => !v.ativo).length : 0;
   const conta = (k) => k === "inicio" && pend ? pend : (k === "equipe" && espera ? espera : 0);
   $("menuLateral").innerHTML = abasVisiveis().map(([k, n, i]) => `<button class="menu-item" type="button" data-act="aba" data-v="${k}"${S.view === k ? ' aria-current="page"' : ""}>${ic(i)}${n}${conta(k) ? `<span class="conta">${conta(k)}</span>` : ""}</button>`).join("");
@@ -660,12 +661,14 @@ window.addEventListener("hashchange", () => { const h = location.hash.replace("#
 /* ===== Início ===== */
 function vInicio() {
   const base = ehAdmin() ? S.contatos : meus();
-  const hj = abordagensEm(meus(), hoje());
-  const pend = pendentes(meus()).sort((a, b) => a.proximo_followup.localeCompare(b.proximo_followup));
+  const vendedoresTime = S.vendedores.filter(v => v.ativo && v.papel !== "admin");
+  const hj = ehAdmin() ? abordagensEm(S.contatos.filter(c => vendedoresTime.some(v => v.id === c.vendedor_id)), hoje()) : abordagensEm(meus(), hoje());
+  const meta = ehAdmin() ? META_DIARIA * Math.max(1, vendedoresTime.length) : META_DIARIA;
+  const pend = pendentes(ehAdmin() ? S.contatos : meus()).sort((a, b) => a.proximo_followup.localeCompare(b.proximo_followup));
   const fechados = base.filter(c => c.status === "fechou").length;
   const abordados = base.filter(c => c.status !== "novo").length;
   const com = totaisComissao(ehAdmin() ? null : S.me.id);
-  const pctMeta = Math.min(100, Math.round(hj / META_DIARIA * 100));
+  const pctMeta = Math.min(100, Math.round(hj / meta * 100));
   const max = Math.max(1, ...STATUS.map(([s]) => base.filter(c => c.status === s).length));
   const taxa = abordados ? Math.round(fechados / abordados * 100) : 0;
   return `
@@ -678,10 +681,10 @@ function vInicio() {
   </div>
   <div class="blocos">
     <div class="bloco destaque">
-      <div class="bloco-topo"><span class="label">Abordagens hoje</span><span class="bloco-ico">${ic("alvo")}</span></div>
-      <span class="valor">${hj}<small> / ${META_DIARIA}</small></span>
-      <div class="barra" role="progressbar" aria-valuenow="${hj}" aria-valuemin="0" aria-valuemax="${META_DIARIA}" aria-label="Meta do dia"><span style="width:${pctMeta}%"></span></div>
-      <span class="det">${hj >= META_DIARIA ? "Meta do dia batida" : `Faltam ${META_DIARIA - hj} para a meta`}</span>
+      <div class="bloco-topo"><span class="label">${ehAdmin() ? "Abordagens do time hoje" : "Abordagens hoje"}</span><span class="bloco-ico">${ic("alvo")}</span></div>
+      <span class="valor">${hj}<small> / ${meta}</small></span>
+      <div class="barra" role="progressbar" aria-valuenow="${hj}" aria-valuemin="0" aria-valuemax="${meta}" aria-label="Meta do dia"><span style="width:${pctMeta}%"></span></div>
+      <span class="det">${ehAdmin() ? (vendedoresTime.map(v => esc(primeiroNome(v.nome)) + " " + abordagensEm(S.contatos.filter(c => c.vendedor_id === v.id), hoje())).join(" · ") || "Nenhum vendedor liberado ainda") : (hj >= meta ? "Meta do dia batida" : `Faltam ${meta - hj} para a meta`)}</span>
     </div>
     <div class="bloco ${pend.length ? "alerta" : ""}">
       <div class="bloco-topo"><span class="label">Chamar hoje</span><span class="bloco-ico">${ic("relogio")}</span></div>
@@ -701,7 +704,7 @@ function vInicio() {
   </div>
   <div class="duas">
     <section class="painel">
-      <div class="painel-topo"><h2>${ic("relogio")}Para chamar hoje</h2><span class="label">${pend.length} contato${pend.length === 1 ? "" : "s"}</span></div>
+      <div class="painel-topo"><h2>${ic("relogio")}${ehAdmin() ? "Time: para chamar hoje" : "Para chamar hoje"}</h2><span class="label">${pend.length} contato${pend.length === 1 ? "" : "s"}</span></div>
       ${pend.length ? `<div class="lista">${pend.slice(0, 12).map(itemContato).join("")}</div>`
         : `<div class="vazio">${ic("raio")}<span>Nenhum follow-up pra hoje. Bom momento pra abordar contatos novos do Google Maps.</span><button class="btn peq" type="button" data-act="novo">${ic("mais")}Cadastrar contato</button></div>`}
     </section>
@@ -989,7 +992,7 @@ function vComissoes() {
 function vEquipe() {
   if (!ehAdmin()) return vInicio();
   const espera = S.vendedores.filter(v => !v.ativo);
-  const time = S.vendedores.filter(v => v.ativo);
+  const time = S.vendedores.filter(v => v.ativo && v.papel !== "admin");
   const h = hoje(), d7 = maisDias(-6);
   const contatoOpts = [...S.contatos].sort((a, b) => (a.status === "fechou" ? 0 : 1) - (b.status === "fechou" ? 0 : 1) || a.negocio.localeCompare(b.negocio))
     .map(c => [c.id, `${c.negocio} · ${nomeVend(c.vendedor_id)}${c.status === "fechou" ? " · fechou" : ""}`]);
