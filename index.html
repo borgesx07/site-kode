@@ -336,6 +336,7 @@ td.num { white-space: nowrap; }
   <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-dica" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></symbol>
   <symbol id="i-insta" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6"/></symbol>
+  <symbol id="i-site" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.3 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.3-3.5-8.5s1.1-6.1 3.5-8.5Z"/></symbol>
 </svg>
 
 <!-- Entrar / criar conta -->
@@ -452,6 +453,8 @@ const NICHOS = [["comida", "Comida e delivery"], ["liberal", "Profissional liber
 const NICHO_NOME = Object.fromEntries(NICHOS);
 const INSTAGRAM = [["", "Ainda não sei"], ["nao_tem", "Não tem Instagram"], ["parado", "Tem, mas está parado"], ["ativo", "Tem e posta sempre"]];
 function limparInsta(v) { let u = String(v || "").trim(); if (u.includes("instagram.com/")) u = u.split("instagram.com/")[1]; return u.split("/")[0].split("?")[0].replace(/^@+/, "").trim(); }
+const SITE = [["", "Ainda não sei"], ["nao_tem", "Não tem site"], ["desatualizado", "Tem, mas está fraco ou desatualizado"], ["bom", "Tem um site bom"]];
+function linkSite(u) { u = String(u || "").trim(); if (!u) return ""; return /^https?:/i.test(u) ? u : "https://" + u; }
 const PRODUTOS = [["cardapio", "Cardápio digital"], ["landing_page", "Landing page"], ["site", "Site completo"], ["insta_essencial", "Instagram Essencial"], ["insta_completo", "Instagram Completo"], ["outro", "Outro"]];
 const PROD_NOME = Object.fromEntries(PRODUTOS);
 // Preços do Guia de Vendas (pagamento: metade na aprovação da prévia, metade na entrega)
@@ -721,6 +724,7 @@ function itemContato(c) {
     c.nicho ? esc(NICHO_NOME[c.nicho] || c.nicho) : "",
     c.regiao ? esc(c.regiao) : "",
     c.instagram === "nao_tem" ? '<span class="insta-op">sem Instagram</span>' : c.instagram === "parado" ? '<span class="insta-op">Instagram parado</span>' : c.instagram === "ativo" ? "Instagram ativo" : "",
+    c.site === "nao_tem" ? '<span class="insta-op">sem site</span>' : c.site === "desatualizado" ? '<span class="insta-op">site desatualizado</span>' : c.site === "bom" ? "já tem site bom" : "",
     c.telefone ? `<span class="num">${esc(telBonito(c.telefone))}</span>` : "",
     `com <span class="dono">${esc(nomeVend(c.vendedor_id))}</span>`,
   ].filter(Boolean).join('<span class="sep">·</span>');
@@ -739,6 +743,7 @@ function itemContato(c) {
       ${zap && meu ? `<a class="btn zap peq" href="${zap}" target="_blank" rel="noopener">${ic("zap")}WhatsApp</a>` : ""}
       ${c.link_maps ? `<a class="btn peq icone" href="${esc(c.link_maps)}" target="_blank" rel="noopener" aria-label="Abrir no Google Maps" title="Google Maps">${ic("mapa")}</a>` : ""}
       ${c.instagram_usuario ? `<a class="btn peq icone" href="https://www.instagram.com/${encodeURIComponent(c.instagram_usuario)}/" target="_blank" rel="noopener" aria-label="Abrir o Instagram @${esc(c.instagram_usuario)}" title="@${esc(c.instagram_usuario)}">${ic("insta")}</a>` : ""}
+      ${c.site_url ? `<a class="btn peq icone" href="${esc(linkSite(c.site_url))}" target="_blank" rel="noopener" aria-label="Abrir o site de ${esc(c.negocio)}" title="Site">${ic("site")}</a>` : ""}
       ${meu ? `<button class="btn peq icone" type="button" data-act="editar" data-id="${c.id}" aria-label="Editar ${esc(c.negocio)}" title="Editar">${ic("editar")}</button>` : ""}
     </div>
   </div>`;
@@ -774,7 +779,7 @@ function vContatos() {
 }
 
 function abrirContato(id) {
-  const c = id ? S.contatos.find(x => x.id === id) : { negocio: "", nicho: "comida", telefone: "", link_maps: "", instagram: "", instagram_usuario: "", regiao: "", status: "novo", proximo_followup: "", observacoes: "", vendedor_id: S.me.id };
+  const c = id ? S.contatos.find(x => x.id === id) : { negocio: "", nicho: "comida", telefone: "", link_maps: "", instagram: "", instagram_usuario: "", site: "", site_url: "", regiao: "", status: "novo", proximo_followup: "", observacoes: "", vendedor_id: S.me.id };
   if (!c) return;
   const vendOpts = S.vendedores.filter(v => v.ativo).map(v => [v.id, v.nome]);
   $("janela").innerHTML = `
@@ -790,6 +795,10 @@ function abrirContato(id) {
         <div class="campo"><label for="cStatus">Status</label><select id="cStatus">${opcoes(STATUS, c.status)}</select></div>
       </div>
       <div class="campo"><label for="cMaps">Link do Google Maps</label><input id="cMaps" type="url" value="${esc(c.link_maps)}" placeholder="Cole o link do Maps"></div>
+      <div class="grade2">
+        <div class="campo"><label for="cSite">Tem site?</label><select id="cSite">${opcoes(SITE, c.site || "")}</select><span class="dica">Sem site ou desatualizado: chance de vender site ou cardápio. Site bom: melhor não insistir.</span></div>
+        <div class="campo"><label for="cSiteUrl">Link do site</label><input id="cSiteUrl" type="url" value="${esc(c.site_url)}" placeholder="www.exemplo.com.br" autocapitalize="off"></div>
+      </div>
       <div class="grade2">
         <div class="campo"><label for="cInsta">Tem Instagram?</label><select id="cInsta">${opcoes(INSTAGRAM, c.instagram || "")}</select><span class="dica">Sem Instagram ou parado: chance de vender o pacote de Instagram.</span></div>
         <div class="campo"><label for="cInstaUser">@ do Instagram</label><input id="cInstaUser" value="${esc(c.instagram_usuario ? "@" + c.instagram_usuario : "")}" placeholder="@perfil ou link" autocapitalize="off"></div>
@@ -824,6 +833,8 @@ function abrirContato(id) {
       link_maps: $("cMaps").value.trim() || null,
       instagram: $("cInsta").value || null,
       instagram_usuario: limparInsta($("cInstaUser").value) || null,
+      site: $("cSite").value || null,
+      site_url: $("cSiteUrl").value.trim() || null,
       proximo_followup: $("cFollow").value || null,
       observacoes: $("cObs").value.trim() || null,
       vendedor_id: ehAdmin() && $("cVend") ? $("cVend").value : (c.vendedor_id || S.me.id),
